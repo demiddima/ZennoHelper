@@ -20,21 +20,17 @@
 
 ## Table Of Contents
 
-* [About the Project](#about-the-project)
-* [Built With](#built-with)
-* [Getting Started](#getting-started)
-* [Usage](#usage)
-* [Contributing](#contributing)
-* [License](#license)
-* [Authors](#authors)
-* [Acknowledgements](#acknowledgements)
+* [О проекте](#about-the-project)
+* [Установка](#getting-started)
+* [Как использовать?](#usage)
+* [Как ты можешь помочь в развитии библиотеки?](#contributing)
+* [Лицензия](#license)
+* [Автор](#authors)
+* [Благодарность](#acknowledgements)
 
 ## About The Project
 
 Все эти методы можно найти на просторах форума и GitHub. Но возможности зенки расширяются и создание библиотеки для более быстрого написания шаблонов весьма актуальна. Наверника у любого уважающего себя зенновода есть подобная или даже несколько. Поэтому данная библиотека нужна скорее новичкам.
-## Built With
-
-Использовались стандартный набор библиотек от ZennoLab
 
 ## Getting Started
 
