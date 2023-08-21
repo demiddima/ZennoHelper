@@ -20,43 +20,39 @@
 
 ## Table Of Contents
 
-* [About the Project](#about-the-project)
-* [Built With](#built-with)
-* [Getting Started](#getting-started)
-* [Usage](#usage)
-* [Contributing](#contributing)
-* [License](#license)
-* [Authors](#authors)
-* [Acknowledgements](#acknowledgements)
+* [О проекте](#about-the-project)
+* [Установка](#getting-started)
+* [Как использовать?](#usage)
+* [Как ты можешь помочь в развитии библиотеки?](#contributing)
+* [Лицензия](#license)
+* [Автор](#authors)
+* [Благодарность](#acknowledgements)
 
-## About The Project
+## О проекте
 
 Все эти методы можно найти на просторах форума и GitHub. Но возможности зенки расширяются и создание библиотеки для более быстрого написания шаблонов весьма актуальна. Наверника у любого уважающего себя зенновода есть подобная или даже несколько. Поэтому данная библиотека нужна скорее новичкам.
-## Built With
 
-Использовались стандартный набор библиотек от ZennoLab
-
-## Getting Started
+## Установка
 
 Скачать, привязать в GAC, прописать в юзингах и использоваться
 
-## Usage
+## Как использовать?
 
 - Сделать парочку примеров через gif
 
-## Contributing
+## Как ты можешь помочь в развитии библиотеки?
 
 Если у вас есть предложения по добавлению новых функций, не стесняйся [открывай ишью](https://github.com/demiddima/ZennoHelper/issues/new) для обсуждения.
 
-## License
+## Лицензия
 
 Распространяется под лицензией MIT. Дополнительную информацию см. в разделе [LICENSE](https://github.com/demiddima/ZennoHelper/blob/main/LICENSE)
 
-## Authors
+## Автор
 
 * [demiddima](https://github.com/demiddima) - C# developer, зенновец, адепт альтернативного интернета.
 
-## Acknowledgements
+## Благодарность
 
 * Гибс
 
