@@ -1,22 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using ZennoLab.CommandCenter;
-using ZennoLab.Emulation;
 using ZennoLab.InterfacesLibrary.ProjectModel;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ZennoHelper
 {
-    public class WebPhone : Web
+    public class Web
     {
-       
+
         public Instance instance;
         public IZennoPosterProjectModel project;
 
-        public WebPhone(Instance newInstance, IZennoPosterProjectModel newProject) : base(newInstance, newProject)
+        public Web(Instance newInstance, IZennoPosterProjectModel newProject)
         {
             instance = newInstance;
             project = newProject;
         }
+
         /// <summary>
         /// Получение html-элемента по его XPath с вызовом исключения в случае не нахождения
         /// </summary>
@@ -25,9 +32,17 @@ namespace ZennoHelper
         /// <param name="index">Индекс XPath для элемента</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public override HtmlElement GetElement(string xpath, int timeout = 25, int index = 0)
+        public virtual HtmlElement GetElement(string xpath, int timeout = 25, int index = 0)
         {
-            return base.GetElement(xpath, timeout, index);
+            DateTime timeoutDT = DateTime.Now.AddSeconds(timeout);
+            while (DateTime.Now < timeoutDT)
+            {
+                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
+                if (!element.IsVoid)
+                    return element;
+                Thread.Sleep(250);
+            }
+            throw new Exception($"GetElement error: element '{xpath}' не найден за {timeout} секунд");
         }
 
         /// <summary>
@@ -40,66 +55,45 @@ namespace ZennoHelper
         /// <param name="showInPosterGood">Разрешить или запретить вывод удачного выполнения в ЗенноПостер</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public override HtmlElement GetElement(string xpath, string logGood,
+        public virtual HtmlElement GetElement(string xpath, string logGood,
             int timeout = 15, int index = 0, bool showInPosterGood = false)
         {
-            return base.GetElement(xpath, logGood, timeout, index, showInPosterGood);
+            DateTime timeoutDT = DateTime.Now.AddSeconds(timeout);
+            while (DateTime.Now < timeoutDT)
+            {
+                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
+                if (!element.IsVoid)
+                {
+                    var log = new Log(instance, project);
+                    log.LogGoodEnd(logGood, showInPosterGood);
+                    return element;
+                }
+                Thread.Sleep(250);
+            }
+            throw new Exception($"GetElement error: element '{xpath}' не найден за {timeout} секунд");
         }
 
         /// <summary>
-        /// Нажатие по элементу через поиск по xpath
+        /// Проверка value элемента на указанные данные
         /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="timeout"></param>
+        /// <param name="text"></param>
+        /// <param name="logGood"></param>
         /// <param name="index"></param>
-        public void Touch(string xpath, int timeout = 25, int index = 0)
+        /// <param name="showInPosterGood"></param>
+        /// <exception cref="Exception"></exception>
+        public void CheckValueElement(HtmlElement element, string text,
+            string logGood, bool showInPosterGood = false)
         {
-            HtmlElement element = GetElement(xpath, timeout, index);
-            Touch(element);
-        }
-        /// <summary>
-        /// Нажатие по элементу, который уже найден
-        /// </summary>
-        /// <param name="element"></param>
-        public void Touch(HtmlElement element)
-        {
-            instance.ActiveTab.Touch.Touch(element);
-        }
-        /// <summary>
-        ///  Установка value элемента через эмуляцию клавиатуры, с предварительным нажатием на него и проверкой после установки
-        /// </summary>
-        /// <param name="xpath">Путь XPath для элемента</param>
-        /// <param name="text">Вводимое значение</param>
-        /// <param name="logGood">Сообщение в лог, если выполнено</param>
-        /// <param name="index"></param>
-        /// <param name="latency">Задержка между вводимыми символами</param>
-        /// <param name="showInPosterGood">Разрешить или запретить вывод удачного выполнения в ЗенноПостер</param>
-		public void SetValueFull(string xpath, string text,
-            string logGood, int index = 0, int latency = 20, bool showInPosterGood = false)
-        {
-            HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
-            Touch(element);
-            instance.SendText(text, latency);
-
-            var web = new Web(instance, project);
-            web.CheckValueElement(element, text, logGood, showInPosterGood);
-        }
-        /// <summary>
-        /// Установка value элемента через эмуляцию клавиатуры, с предварительным нажатием на него и проверкой после установки
-        /// </summary>
-        /// <param name="element"></param>
-        /// <param name="text">Вводимое значение</param>
-        /// <param name="logGood">Сообщение в лог, если выполнено</param>
-        /// <param name="latency">Задержка между вводимыми символами</param>
-        /// <param name="showInPosterGood">Разрешить или запретить вывод удачного выполнения в ЗенноПостер</param>
-        public void SetValueFull(HtmlElement element, string text,
-            string logGood, int latency = 20, bool showInPosterGood = false)
-        {
-            Touch(element);
-            instance.SendText(text, latency);
-
-            var web = new Web(instance, project);
-            web.CheckValueElement(element, text, logGood, showInPosterGood);
+            string valueElement = element.GetValue();
+            if (valueElement.Contains(text))
+            {
+                var log = new Log(instance, project);
+                log.LogGoodEnd(logGood, showInPosterGood);
+            }
+            else
+            {
+                throw new Exception($"CheckValueElement error: element '{element.GetAttribute("innerHtml")}' c значением '{text}' не найден");
+            }
         }
 
         /// <summary>
@@ -110,16 +104,17 @@ namespace ZennoHelper
         /// <param name="emulation"></param>
         /// <param name="addend"></param>
         /// <param name="showInPosterGood"></param>
-        public override void SetValue(HtmlElement element, string text,
+        public virtual void SetValue(HtmlElement element, string text,
             string logGood, string emulation = "None",
             bool addend = false, bool showInPosterGood = false)
         {
-            base.SetValue(element,text, logGood, emulation, addend, showInPosterGood);
+            element.SetValue(text, emulation, append: addend);
+
+            CheckValueElement(element, text, logGood, showInPosterGood);
         }
 
-
         /// <summary>
-        /// Переход на сайт с проверкой загрузки через GetElement и выводом сообщения в лог
+        /// Переход на сайт с проверкой загрузки через GetElement
         /// </summary>
         /// <param name="url">Ссылка для перехода</param>
         /// <param name="xpath">Элемент, по которому будет определяться загрузка сайта</param>
@@ -129,12 +124,15 @@ namespace ZennoHelper
         /// <param name="index">Индекс XPath для элемента, по которому проверяется загрузка url</param>
         /// <param name="showInPosterGood">Разрешить или запретить вывод ошибки в ЗенноПостер</param>
         /// <returns></returns>
-        public override HtmlElement NavigateWithoutTry(string url, string xpath,
-            string logGood, string referrer, int timeout = 25, int index = 0,
+        public virtual HtmlElement NavigateWithoutTry(string url, string xpath,
+            string logGood, string referrer = null, int timeout = 25, int index = 0,
             bool showInPosterGood = false)
         {
-            return base.NavigateWithoutTry(url, xpath, logGood, referrer, timeout, index, showInPosterGood);
+            instance.ActiveTab.Navigate(url, referrer);
+            HtmlElement element = GetElement(xpath, logGood, timeout, index, showInPosterGood);
+            return element;
         }
+
         /// <summary>
         /// Переход на сайт с проверкой загрузки через GetElement с 3 попытками и выводом сообщения в лог
         /// </summary>
@@ -147,11 +145,39 @@ namespace ZennoHelper
         /// <param name="showInPosterGood">Разрешить или запретить вывод ошибки в ЗенноПостер</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public HtmlElement NavigateWithTry(string url, string xpath,
+        public virtual HtmlElement NavigateWithTry(string url, string xpath,
             string logGood, string referrer, int timeout = 25, int index = 0,
             bool showInPosterGood = false)
         {
-            return base.NavigateWithTry(url, xpath, logGood, referrer, timeout, index, showInPosterGood);
+            HtmlElement element = null;
+            for (int i = 0; i < 3; i++)
+            {
+                instance.ActiveTab.Navigate(url, referrer);
+
+                try
+                {
+                    element = GetElement(xpath, timeout, index);
+                    break;
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+
+            if (element != null)
+            {
+                var log = new Log(instance, project);
+                log.LogGoodEnd(logGood, showInPosterGood);
+                return element;
+            }
+            else
+            {
+                throw new Exception($"GetElement error: element '{xpath}' не найден за 3 попытки по {timeout} секунд");
+            }
         }
+
+
+
     }
 }
