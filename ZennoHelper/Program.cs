@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Net.Sockets;
-using System.Resources;
-using System.Text;
-using ZennoLab.CommandCenter;
-using ZennoLab.Emulation;
+﻿using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
-using ZennoLab.InterfacesLibrary.ProjectModel.Enums;
 
 namespace ZennoHelper
 {
