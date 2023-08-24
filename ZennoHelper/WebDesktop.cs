@@ -69,6 +69,17 @@ namespace ZennoHelper
             instance.ActiveTab.FullEmulationMouseClick("left", "click");
         }
         /// <summary>
+        /// ФулКлик по координатам
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        public void FullClick(int x, int y)
+        {
+            instance.ActiveTab.FullEmulationMouseMove(x, y);
+            instance.ActiveTab.FullEmulationMouseClick("left", "click");
+
+        }
+        /// <summary>
         /// Клик мышью по уже найденному html-элементу с выбором уровня эмуляции
         /// </summary>
         /// <param name="element">HtmlElement</param>
