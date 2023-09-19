@@ -72,6 +72,28 @@ namespace ZennoHelper
             }
             throw new Exception($"GetElement error: element '{xpath}' не найден за {timeout} секунд");
         }
+        /// <summary>
+        /// Проверка существование html-элемента по его XPath
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="logGood"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        /// <returns></returns>
+        public virtual bool BoolElement(string xpath, string logGood,
+            int timeout = 15, int index = 0, bool showInPosterGood = false)
+        {
+            DateTime timeoutDT = DateTime.Now.AddSeconds(timeout);
+            while (DateTime.Now < timeoutDT)
+            {
+                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
+                if (!element.IsVoid)
+                    return true;
+                Thread.Sleep(250);
+            }
+            return false;
+        }
 
         /// <summary>
         /// Проверка value элемента на указанные данные

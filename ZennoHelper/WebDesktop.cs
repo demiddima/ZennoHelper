@@ -31,7 +31,19 @@ namespace ZennoHelper
         {
             return base.GetElement(xpath, timeout, index);
         }
-
+        /// <summary>
+        /// Проверка существование html-элемента по его XPath
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="logGood"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        /// <returns></returns>
+        public override bool BoolElement(string xpath, string logGood, int timeout = 15, int index = 0, bool showInPosterGood = false)
+        {
+            return base.BoolElement(xpath, logGood, timeout, index, showInPosterGood);
+        }
         /// <summary>
         /// Получение html-элемента по его XPath с вызовом исключения в случае не нахождения, и выводом сообщений в лог
         /// </summary>
