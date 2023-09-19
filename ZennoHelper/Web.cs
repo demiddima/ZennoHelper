@@ -15,8 +15,8 @@ namespace ZennoHelper
     public class Web
     {
 
-        public Instance instance;
-        public IZennoPosterProjectModel project;
+        private Instance instance;
+        private IZennoPosterProjectModel project;
 
         public Web(Instance newInstance, IZennoPosterProjectModel newProject)
         {
@@ -108,6 +108,25 @@ namespace ZennoHelper
             string logGood, string emulation = "None",
             bool addend = false, bool showInPosterGood = false)
         {
+            element.SetValue(text, emulation, append: addend);
+
+            CheckValueElement(element, text, logGood, showInPosterGood);
+        }
+        /// <summary>
+        /// Вставка value в ещё не найденный элемент с проверкой
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="text"></param>
+        /// <param name="logGood"></param>
+        /// <param name="emulation"></param>
+        /// <param name="addend"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        public virtual void SetValue(string xpath, string text, string logGood,  
+            string emulation = "None", bool addend = false, int index = 0, bool showInPosterGood = false)
+        {
+            HtmlElement element = GetElement(xpath, 1, index);
+
             element.SetValue(text, emulation, append: addend);
 
             CheckValueElement(element, text, logGood, showInPosterGood);
