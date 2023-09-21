@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using ZennoLab.CommandCenter;
+using ZennoLab.Emulation;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace ZennoHelper
@@ -215,6 +218,53 @@ namespace ZennoHelper
             bool showInPosterGood = false)
         {
             return base.NavigateWithTry(url, xpath, logGood, referrer, timeout, index, showInPosterGood);
+        }
+
+        /// <summary>
+        /// ФулКлик с ожиданием появления элемента после клика через XPath
+        /// </summary>
+        /// <param name="fullClickXpath"></param>
+        /// <param name="waitElement"></param>
+        /// <param name="timeout"></param>
+        public void FullClickWithCheck(string fullClickXpath, string waitElement,  int timeout = 5)
+        {
+            FullClick(fullClickXpath, 0);
+            GetElement(waitElement, timeout, 0);
+        }
+        /// <summary>
+        /// ФулКлик с ожиданием появления элемента после клика с уже найденным элементом
+        /// </summary>
+        /// <param name="clickElement"></param>
+        /// <param name="waitElement"></param>
+        /// <param name="timeout"></param>
+        public void FullClickWithCheck(HtmlElement clickElement, string waitElement, int timeout = 5)
+        {
+            FullClick(clickElement);
+            GetElement(waitElement, timeout, 0);
+        }
+        /// <summary>
+        /// Клик с ожиданием появления элемента после клика через XPath
+        /// </summary>
+        /// <param name="clickXpath"></param>
+        /// <param name="waitElement"></param>
+        /// <param name="emulation"></param>
+        /// <param name="timeout"></param>
+        public void ClickWithCheck(string clickXpath, string waitElement, string emulation = "None", int timeout = 5)
+        {
+            Click(clickXpath, 0, emulation);
+            GetElement(waitElement, timeout, 0);
+        }
+        /// <summary>
+        /// Клик с ожиданием появления элемента после клика с уже найденным элементом
+        /// </summary>
+        /// <param name="clickElement"></param>
+        /// <param name="waitElement"></param>
+        /// <param name="timeout"></param>
+        /// <param name="emulation"></param>
+        public void ClickWithCheck(HtmlElement clickElement, string waitElement, int timeout = 5, string emulation = "None")
+        {
+            Click(clickElement, emulation);
+            GetElement(waitElement, timeout, 0);
         }
     }
 }
