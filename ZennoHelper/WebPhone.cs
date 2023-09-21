@@ -9,8 +9,8 @@ namespace ZennoHelper
     public class WebPhone : Web
     {
        
-        public Instance instance;
-        public IZennoPosterProjectModel project;
+        private Instance instance;
+        private IZennoPosterProjectModel project;
 
         public WebPhone(Instance newInstance, IZennoPosterProjectModel newProject) : base(newInstance, newProject)
         {
@@ -28,6 +28,19 @@ namespace ZennoHelper
         public override HtmlElement GetElement(string xpath, int timeout = 25, int index = 0)
         {
             return base.GetElement(xpath, timeout, index);
+        }
+        /// <summary>
+        /// Проверка существование html-элемента по его XPath
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="logGood"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        /// <returns></returns>
+        public override bool BoolElement(string xpath, string logGood, int timeout = 15, int index = 0, bool showInPosterGood = false)
+        {
+            return base.BoolElement(xpath, logGood, timeout, index, showInPosterGood);
         }
 
         /// <summary>
@@ -116,6 +129,20 @@ namespace ZennoHelper
         {
             base.SetValue(element,text, logGood, emulation, addend, showInPosterGood);
         }
+        /// <summary>
+        /// Вставка value в ещё не найденный элемент с проверкой
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="text"></param>
+        /// <param name="logGood"></param>
+        /// <param name="emulation"></param>
+        /// <param name="addend"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        public override void SetValue(string xpath, string text, string logGood, string emulation = "None", bool addend = false, int index = 0, bool showInPosterGood = false)
+        {
+            base.SetValue(xpath, text, logGood, emulation, addend, index, showInPosterGood);
+        }
 
 
         /// <summary>
@@ -147,7 +174,7 @@ namespace ZennoHelper
         /// <param name="showInPosterGood">Разрешить или запретить вывод ошибки в ЗенноПостер</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public HtmlElement NavigateWithTry(string url, string xpath,
+        public override HtmlElement NavigateWithTry(string url, string xpath,
             string logGood, string referrer, int timeout = 25, int index = 0,
             bool showInPosterGood = false)
         {
