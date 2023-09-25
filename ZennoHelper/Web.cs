@@ -218,6 +218,43 @@ namespace ZennoHelper
             }
         }
 
+        /// <summary>
+        /// Вставка value в ещё не найденный элемент без проверки
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="text"></param>
+        /// <param name="logGood"></param>
+        /// <param name="emulation"></param>
+        /// <param name="addend"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        public virtual void SetValueWithoutCheck(string xpath, string text, string logGood,
+            string emulation = "None", bool addend = false, int index = 0, bool showInPosterGood = false)
+        {
+            HtmlElement element = GetElement(xpath, 1, index);
+
+            element.SetValue(text, emulation, append: addend);
+            var log = new Log(instance, project);
+            log.LogGoodEnd(logGood, showInPosterGood);
+
+        }
+        /// <summary>
+        /// Вставка value в уже найденный элемент без проверки
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="text"></param>
+        /// <param name="logGood"></param>
+        /// <param name="emulation"></param>
+        /// <param name="addend"></param>
+        /// <param name="showInPosterGood"></param>
+        public virtual void SetValueWithoutCheck(HtmlElement element, string text,
+            string logGood, string emulation = "None",
+            bool addend = false, bool showInPosterGood = false)
+        {
+            element.SetValue(text, emulation, append: addend);
+            var log = new Log(instance, project);
+            log.LogGoodEnd(logGood, showInPosterGood);
+        }
 
 
     }

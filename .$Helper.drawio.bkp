@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2023-09-20T05:08:38.839Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="LWK31z2a61M4VnGpxRZD" version="21.7.5" type="device">
+<mxfile host="Electron" modified="2023-09-20T05:45:53.426Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="Sc1oS6FZVgijs86kLkmU" version="21.7.5" type="device">
   <diagram name="Страница — 1" id="VfH1HCLPMnEz3A9XAl1Z">
     <mxGraphModel dx="2514" dy="2162" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -19,7 +19,7 @@
           <mxGeometry y="88" width="280" height="222" as="geometry" />
         </mxCell>
         <mxCell id="1HyaqfsoxmruESw_tzNq-8" value="WebDesktop" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-10" y="60" width="300" height="160" as="geometry" />
+          <mxGeometry x="-10" y="60" width="300" height="220" as="geometry" />
         </mxCell>
         <mxCell id="1HyaqfsoxmruESw_tzNq-9" value="+ field: type" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="1HyaqfsoxmruESw_tzNq-8" vertex="1">
           <mxGeometry y="26" width="300" height="26" as="geometry" />
@@ -27,8 +27,8 @@
         <mxCell id="1HyaqfsoxmruESw_tzNq-10" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="1HyaqfsoxmruESw_tzNq-8" vertex="1">
           <mxGeometry y="52" width="300" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="1HyaqfsoxmruESw_tzNq-11" value="+ FullClick(HtmlElement): void&lt;br&gt;+&amp;nbsp;FullClick(string, int): void&lt;br&gt;+&amp;nbsp;Click(HtmlElement, string): void&lt;br&gt;+&amp;nbsp;SetValueFull(string, string, string, int, int, bool): void&lt;br&gt;+&amp;nbsp;SetValueFull(HtmlElement, string, string, int, bool): void&lt;br&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="1HyaqfsoxmruESw_tzNq-8" vertex="1">
-          <mxGeometry y="60" width="300" height="100" as="geometry" />
+        <mxCell id="1HyaqfsoxmruESw_tzNq-11" value="+ FullClick(HtmlElement): void&lt;br&gt;+&amp;nbsp;FullClick(string, int): void&lt;br&gt;+&amp;nbsp;Click(HtmlElement, string): void&lt;br&gt;+&amp;nbsp;SetValueFull(string, string, string, int, int, bool): void&lt;br&gt;+&amp;nbsp;SetValueFull(HtmlElement, string, string, int, bool): void&lt;br&gt;+ FullClickWithCheck(): void&lt;br&gt;+ ClickWithCheck(): void&lt;br&gt;+ FullClickWithCheck(): void&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;+ ClickWithCheck(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="1HyaqfsoxmruESw_tzNq-8" vertex="1">
+          <mxGeometry y="60" width="300" height="160" as="geometry" />
         </mxCell>
         <mxCell id="1HyaqfsoxmruESw_tzNq-12" value="WebPhone" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="810" y="70" width="320" height="140" as="geometry" />

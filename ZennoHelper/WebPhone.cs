@@ -143,7 +143,33 @@ namespace ZennoHelper
         {
             base.SetValue(xpath, text, logGood, emulation, addend, index, showInPosterGood);
         }
-
+        /// <summary>
+        /// Вставка value в уже найденный элемент без проверки
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="text"></param>
+        /// <param name="logGood"></param>
+        /// <param name="emulation"></param>
+        /// <param name="addend"></param>
+        /// <param name="showInPosterGood"></param>
+        public override void SetValueWithoutCheck(HtmlElement element, string text, string logGood, string emulation = "None", bool addend = false, bool showInPosterGood = false)
+        {
+            base.SetValueWithoutCheck(element, text, logGood, emulation, addend, showInPosterGood);
+        }
+        /// <summary>
+        /// Вставка value c ещё не найденный элемент без проверки
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="text"></param>
+        /// <param name="logGood"></param>
+        /// <param name="emulation"></param>
+        /// <param name="addend"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        public override void SetValueWithoutCheck(string xpath, string text, string logGood, string emulation = "None", bool addend = false, int index = 0, bool showInPosterGood = false)
+        {
+            base.SetValueWithoutCheck(xpath, text, logGood, emulation, addend, index, showInPosterGood);
+        }
 
         /// <summary>
         /// Переход на сайт с проверкой загрузки через GetElement и выводом сообщения в лог
