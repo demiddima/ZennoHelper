@@ -293,5 +293,22 @@ namespace ZennoHelper
             Click(clickElement, emulation);
             GetElement(waitElement, timeout, 0);
         }
+        /// <summary>
+        /// Нажатие клавиши ENTER
+        /// </summary>
+        public void ENTER()
+        {
+            instance.WaitFieldEmulationDelay();
+            instance.SendText("{ENTER}", 15);
+        }
+        /// <summary>
+        /// Нажатие клавиши Tab
+        /// </summary>
+        public void TAB()
+        {
+            instance.WaitFieldEmulationDelay();
+            instance.SendText("{TAB}", 15);
+        }
+
     }
 }
