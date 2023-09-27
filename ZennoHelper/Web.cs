@@ -73,6 +73,37 @@ namespace ZennoHelper
             throw new Exception($"GetElement error: element '{xpath}' не найден за {timeout} секунд");
         }
         /// <summary>
+        /// Получение html-элемента по его атрибуту с вызовом исключения в случае не нахождения, и выводом сообщений в лог
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="attrName"></param>
+        /// <param name="attrValue"></param>
+        /// <param name="searchKind"></param>
+        /// <param name="logGood"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public virtual HtmlElement GetElementAttribute(string tag, string attrName, string attrValue,
+            string searchKind, string logGood, int timeout = 15, int index = 0, bool showInPosterGood = false)
+
+        {
+            DateTime timeoutDT = DateTime.Now.AddSeconds(timeout);
+            while (DateTime.Now < timeoutDT)
+            {
+                HtmlElement element = instance.ActiveTab.FindElementByAttribute(tag,attrName,attrValue,searchKind, index);
+                if (!element.IsVoid)
+                {
+                    var log = new Log(instance, project);
+                    log.LogGoodEnd(logGood, showInPosterGood);
+                    return element;
+                }
+                Thread.Sleep(250);
+            }
+            throw new Exception($"GetElementAttribute error: element '{tag}[@{attrName} = '{attrValue}']' не найден за {timeout} секунд");
+        }
+        /// <summary>
         /// Проверка существование html-элемента по его XPath
         /// </summary>
         /// <param name="xpath"></param>

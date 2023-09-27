@@ -62,6 +62,22 @@ namespace ZennoHelper
         {
             return base.GetElement(xpath, logGood, timeout, index, showInPosterGood);
         }
+        /// <summary>
+        /// Получение html-элемента по его атрибуту с вызовом исключения в случае не нахождения, и выводом сообщений в лог
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="attrName"></param>
+        /// <param name="attrValue"></param>
+        /// <param name="searchKind"></param>
+        /// <param name="logGood"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        /// <returns></returns>
+        public override HtmlElement GetElementAttribute(string tag, string attrName, string attrValue, string searchKind, string logGood, int timeout = 15, int index = 0, bool showInPosterGood = false)
+        {
+            return base.GetElementAttribute(tag, attrName, attrValue, searchKind, logGood, timeout, index, showInPosterGood);
+        }
 
         /// <summary>
         /// ФулКлик мышью по уже найденному html-элементу с предварительной наводкой на него
