@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using ZennoLab.CommandCenter;
 using ZennoLab.Emulation;
@@ -8,81 +10,23 @@ namespace ZennoHelper
 {
     public class WebPhone : Web
     {
-       
-        private Instance instance;
-        private IZennoPosterProjectModel project;
+        public WebPhone(Instance instance, IZennoPosterProjectModel project) : base(instance, project)
+        {
 
-        public WebPhone(Instance newInstance, IZennoPosterProjectModel newProject) : base(newInstance, newProject)
-        {
-            instance = newInstance;
-            project = newProject;
-        }
-        /// <summary>
-        /// Получение html-элемента по его XPath с вызовом исключения в случае не нахождения
-        /// </summary>
-        /// <param name="xpath">>Путь XPath для элемента</param>
-        /// <param name="timeout">Кол-во времени для ожидания элемента</param>
-        /// <param name="index">Индекс XPath для элемента</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public override HtmlElement GetElement(string xpath, int timeout = 25, int index = 0)
-        {
-            return base.GetElement(xpath, timeout, index);
-        }
-        /// <summary>
-        /// Проверка существование html-элемента по его XPath
-        /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="logGood"></param>
-        /// <param name="timeout"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
-        /// <returns></returns>
-        public override bool BoolElement(string xpath, string logGood, int timeout = 15, int index = 0, bool showInPosterGood = false)
-        {
-            return base.BoolElement(xpath, logGood, timeout, index, showInPosterGood);
         }
 
-        /// <summary>
-        /// Получение html-элемента по его XPath с вызовом исключения в случае не нахождения, и выводом сообщений в лог
-        /// </summary>
-        /// <param name="xpath">Путь XPath для элемента</param>
-        /// <param name="logGood">Сообщение в лог, если выполнено</param>
-        /// <param name="timeout">Кол-во времени для ожидания элемента</param>
-        /// <param name="index">Индекс XPath для элемента</param>
-        /// <param name="showInPosterGood">Разрешить или запретить вывод удачного выполнения в ЗенноПостер</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public override HtmlElement GetElement(string xpath, string logGood,
-            int timeout = 15, int index = 0, bool showInPosterGood = false)
-        {
-            return base.GetElement(xpath, logGood, timeout, index, showInPosterGood);
-        }
-        /// <summary>
-        /// Получение html-элемента по его атрибуту с вызовом исключения в случае не нахождения, и выводом сообщений в лог
-        /// </summary>
-        /// <param name="tag"></param>
-        /// <param name="attrName"></param>
-        /// <param name="attrValue"></param>
-        /// <param name="searchKind"></param>
-        /// <param name="logGood"></param>
-        /// <param name="timeout"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
-        /// <returns></returns>
-        public override HtmlElement GetElementAttribute(string tag, string attrName, string attrValue, string searchKind, string logGood, int timeout = 15, int index = 0, bool showInPosterGood = false)
-        {
-            return base.GetElementAttribute(tag, attrName, attrValue, searchKind, logGood, timeout, index, showInPosterGood);
-        }
         /// <summary>
         /// Нажатие по элементу через поиск по xpath
         /// </summary>
         /// <param name="xpath"></param>
+        /// <param name="logGood"></param>
         /// <param name="timeout"></param>
+        /// <param name="endCycle"></param>
         /// <param name="index"></param>
-        public void Touch(string xpath, int timeout = 25, int index = 0)
+        /// <param name="showInPosterGood"></param>
+        public void Touch(string xpath, string logGood = "Элемент для Touch найден", int timeout = 10, int endCycle = 2, int index = 0, bool showInPosterGood = false)
         {
-            HtmlElement element = GetElement(xpath, timeout, index);
+            HtmlElement element = GetElement(xpath, logGood, timeout, endCycle, index, showInPosterGood);
             Touch(element);
         }
         /// <summary>
@@ -94,132 +38,93 @@ namespace ZennoHelper
             instance.ActiveTab.Touch.Touch(element);
         }
         /// <summary>
-        ///  Установка value элемента через эмуляцию клавиатуры, с предварительным нажатием на него и проверкой после установки
+        /// Установка value элемента через эмуляцию клавиатуры, с предварительным нажатием на него и проверкой после установки
         /// </summary>
-        /// <param name="xpath">Путь XPath для элемента</param>
-        /// <param name="text">Вводимое значение</param>
-        /// <param name="logGood">Сообщение в лог, если выполнено</param>
-        /// <param name="index"></param>
-        /// <param name="latency">Задержка между вводимыми символами</param>
-        /// <param name="showInPosterGood">Разрешить или запретить вывод удачного выполнения в ЗенноПостер</param>
-		public void SetValueFull(string xpath, string text,
-            string logGood, int index = 0, int latency = 20, bool showInPosterGood = false)
+        /// <param name="xpathTouch"></param>
+        /// <param name="text"></param>
+        /// <param name="latency"></param>
+        /// <param name="logGoodTouch"></param>
+        /// <param name="timeoutTouch"></param>
+        /// <param name="endCycleTouch"></param>
+        /// <param name="indexTouch"></param>
+        /// <param name="logGoodCheck"></param>
+        /// <param name="showInPosterGoodTouch"></param>
+        /// <param name="showInPosterGoodCheck"></param>
+		public void SetValueFullTouch(string xpathTouch, string text, int latency = 20,
+            string logGoodTouch = "Элемент для Touch найден", int timeoutTouch = 10, int endCycleTouch = 2, int indexTouch = 0, 
+            string logGoodCheck = "Value элемента изменено!", bool showInPosterGoodTouch = false, bool showInPosterGoodCheck = false)
         {
-            HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
+            HtmlElement element = GetElement(xpathTouch, logGoodTouch, timeoutTouch, endCycleTouch, indexTouch, showInPosterGoodTouch);
             Touch(element);
             instance.SendText(text, latency);
 
-            var web = new Web(instance, project);
-            web.CheckValueElement(element, text, logGood, showInPosterGood);
+            CheckValueElement(element, text, logGoodCheck, showInPosterGoodCheck);
         }
         /// <summary>
         /// Установка value элемента через эмуляцию клавиатуры, с предварительным нажатием на него и проверкой после установки
         /// </summary>
         /// <param name="element"></param>
-        /// <param name="text">Вводимое значение</param>
-        /// <param name="logGood">Сообщение в лог, если выполнено</param>
-        /// <param name="latency">Задержка между вводимыми символами</param>
-        /// <param name="showInPosterGood">Разрешить или запретить вывод удачного выполнения в ЗенноПостер</param>
-        public void SetValueFull(HtmlElement element, string text,
-            string logGood, int latency = 20, bool showInPosterGood = false)
+        /// <param name="text"></param>
+        /// <param name="logGoodCheck"></param>
+        /// <param name="latency"></param>
+        /// <param name="showInPosterGoodCheck"></param>
+        public void SetValueFullTouch(HtmlElement element, string text,
+            string logGoodCheck = "Value элемента изменено!", int latency = 20, bool showInPosterGoodCheck = false)
         {
             Touch(element);
             instance.SendText(text, latency);
 
-            var web = new Web(instance, project);
-            web.CheckValueElement(element, text, logGood, showInPosterGood);
+            CheckValueElement(element, text, logGoodCheck, showInPosterGoodCheck);
         }
 
         /// <summary>
-        /// Вставка value в элемент с проверкой
+        /// Нажатие через xpath с проверкой и попытками 
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="logGood"></param>
-        /// <param name="emulation"></param>
-        /// <param name="addend"></param>
-        /// <param name="showInPosterGood"></param>
-        public override void SetValue(HtmlElement element, string text,
-            string logGood, string emulation = "None",
-            bool addend = false, bool showInPosterGood = false)
-        {
-            base.SetValue(element,text, logGood, emulation, addend, showInPosterGood);
-        }
-        /// <summary>
-        /// Вставка value в ещё не найденный элемент с проверкой
-        /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="text"></param>
-        /// <param name="logGood"></param>
-        /// <param name="emulation"></param>
-        /// <param name="addend"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
-        public override void SetValue(string xpath, string text, string logGood, string emulation = "None", bool addend = false, int index = 0, bool showInPosterGood = false)
-        {
-            base.SetValue(xpath, text, logGood, emulation, addend, index, showInPosterGood);
-        }
-        /// <summary>
-        /// Вставка value в уже найденный элемент без проверки
-        /// </summary>
-        /// <param name="element"></param>
-        /// <param name="text"></param>
-        /// <param name="logGood"></param>
-        /// <param name="emulation"></param>
-        /// <param name="addend"></param>
-        /// <param name="showInPosterGood"></param>
-        public override void SetValueWithoutCheck(HtmlElement element, string text, string logGood, string emulation = "None", bool addend = false, bool showInPosterGood = false)
-        {
-            base.SetValueWithoutCheck(element, text, logGood, emulation, addend, showInPosterGood);
-        }
-        /// <summary>
-        /// Вставка value c ещё не найденный элемент без проверки
-        /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="text"></param>
-        /// <param name="logGood"></param>
-        /// <param name="emulation"></param>
-        /// <param name="addend"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
-        public override void SetValueWithoutCheck(string xpath, string text, string logGood, string emulation = "None", bool addend = false, int index = 0, bool showInPosterGood = false)
-        {
-            base.SetValueWithoutCheck(xpath, text, logGood, emulation, addend, index, showInPosterGood);
-        }
-
-        /// <summary>
-        /// Переход на сайт с проверкой загрузки через GetElement и выводом сообщения в лог
-        /// </summary>
-        /// <param name="url">Ссылка для перехода</param>
-        /// <param name="xpath">Элемент, по которому будет определяться загрузка сайта</param>
-        /// <param name="logGood">Сообщение в лог, если выполнено</param>
-        /// <param name="referrer">Ссылка с которой якобы совершён переход на url</param>
-        /// <param name="timeout">Кол-во времени для ожидания элемента, по которому проверяется загрузка url</param>
-        /// <param name="index">Индекс XPath для элемента, по которому проверяется загрузка url</param>
-        /// <param name="showInPosterGood">Разрешить или запретить вывод ошибки в ЗенноПостер</param>
-        /// <returns></returns>
-        public override HtmlElement NavigateWithoutTry(string url, string xpath,
-            string logGood, string referrer, int timeout = 25, int index = 0,
-            bool showInPosterGood = false)
-        {
-            return base.NavigateWithoutTry(url, xpath, logGood, referrer, timeout, index, showInPosterGood);
-        }
-        /// <summary>
-        /// Переход на сайт с проверкой загрузки через GetElement с 3 попытками и выводом сообщения в лог
-        /// </summary>
-        /// <param name="url">Ссылка для перехода</param>
-        /// <param name="xpath">Элемент, по которому будет определяться загрузка сайта</param>
-        /// <param name="logGood">Сообщение в лог, если выполнено</param>
-        /// <param name="referrer">Ссылка с которой якобы совершён переход на url</param>
-        /// <param name="timeout">Кол-во времени для ожидания элемента, по которому проверяется загрузка url</param>
-        /// <param name="index">Индекс XPath для элемента, по которому проверяется загрузка url</param>
-        /// <param name="showInPosterGood">Разрешить или запретить вывод ошибки в ЗенноПостер</param>
-        /// <returns></returns>
+        /// <param name="xpathTouch"></param>
+        /// <param name="xpathCheck"></param>
+        /// <param name="logGoodTouch"></param>
+        /// <param name="timeoutTouch"></param>
+        /// <param name="endCycleTouch"></param>
+        /// <param name="indexTouch"></param>
+        /// <param name="logGoodCheck"></param>
+        /// <param name="timeoutCheckElement"></param>
+        /// <param name="endCycleCheck"></param>
+        /// <param name="indexCheck"></param>
+        /// <param name="showInPosterGoodTouch"></param>
+        /// <param name="showInPosterGoodCheck"></param>
         /// <exception cref="Exception"></exception>
-        public override HtmlElement NavigateWithTry(string url, string xpath,
-            string logGood, string referrer, int timeout = 25, int index = 0,
-            bool showInPosterGood = false)
+        public void TouchWithCheck(string xpathTouch, string xpathCheck,
+            string logGoodTouch = "Элемент для Touch найден", int timeoutTouch = 10, int endCycleTouch = 2, int indexTouch = 0, 
+           string logGoodCheck = "Touch по элементу удался!", int timeoutCheckElement = 1000, int endCycleCheck = 10, int indexCheck = 0, 
+           bool showInPosterGoodTouch = false, bool showInPosterGoodCheck = false)
         {
-            return base.NavigateWithTry(url, xpath, logGood, referrer, timeout, index, showInPosterGood);
+            for (int i = 0; i < 2; i++)
+            {
+                try
+                {
+                    HtmlElement element = GetElement(xpathTouch, logGoodTouch, timeoutTouch, endCycleTouch, indexTouch, showInPosterGoodTouch);
+                    Touch(element);
+
+                    GetElement(xpathCheck, logGoodCheck, timeoutCheckElement, endCycleCheck, indexCheck, showInPosterGoodCheck);
+
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    if (i == 2)
+                    {
+                        throw new Exception("Ошибка выполнения Touch: " + ex.Message);
+                    }
+                    continue;
+                }
+            }
+        }
+
+
+
+        public override void CheckValueElement(HtmlElement element, string text, string logGood, bool showInPosterGood = false)
+        {
+            base.CheckValueElement(element, text, logGood, showInPosterGood);
         }
     }
 }
