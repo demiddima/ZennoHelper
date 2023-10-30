@@ -15,6 +15,12 @@ namespace ZennoHelper
 
         }
 
+
+        public override void CheckValueElement(HtmlElement element, string text, string logGood, bool showInPosterGood = false)
+        {
+            base.CheckValueElement(element, text, logGood, showInPosterGood);
+        }
+
         /// <summary>
         /// Нажатие по элементу через поиск по xpath
         /// </summary>
@@ -120,11 +126,33 @@ namespace ZennoHelper
             }
         }
 
-
-
-        public override void CheckValueElement(HtmlElement element, string text, string logGood, bool showInPosterGood = false)
+        /// <summary>
+        /// Загрузка файла на сервер с проверкой
+        /// </summary>
+        /// <param name="pathFile"></param>
+        /// <param name="xpathFullClick"></param>
+        /// <param name="xpathCheckDownload"></param>
+        /// <param name="logGoodFullClick"></param>
+        /// <param name="timeoutFullClick"></param>
+        /// <param name="endCycleFullClick"></param>
+        /// <param name="indexFullClick"></param>
+        /// <param name="logGoodCheckDownload"></param>
+        /// <param name="timeoutCheckDownload"></param>
+        /// <param name="endCycleCheckDownload"></param>
+        /// <param name="indexCheckDownload"></param>
+        /// <param name="showInPosterGoodFullClick"></param>
+        /// <param name="showInPosterGoodCheckDownload"></param>
+        public override void DownloadFile(string pathFile, string xpathFullClick, string xpathCheckDownload, string logGoodFullClick = "Элемент загрузки файла для FullClick найден!", int timeoutFullClick = 10, int endCycleFullClick = 2, int indexFullClick = 0, string logGoodCheckDownload = "Файл успешно загружен!", int timeoutCheckDownload = 500, int endCycleCheckDownload = 10, int indexCheckDownload = 0, bool showInPosterGoodFullClick = false, bool showInPosterGoodCheckDownload = false)
         {
-            base.CheckValueElement(element, text, logGood, showInPosterGood);
+            instance.SetFileUploadPolicy("ok", "");
+            instance.SetFilesForUpload(pathFile);
+
+            Touch(xpathFullClick,logGoodFullClick, timeoutFullClick, endCycleFullClick, indexFullClick, showInPosterGoodFullClick);
+
+            GetElement(xpathCheckDownload, logGoodCheckDownload, timeoutCheckDownload, endCycleCheckDownload, indexCheckDownload, showInPosterGoodCheckDownload);
         }
+
+
+
     }
 }
