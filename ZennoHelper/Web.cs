@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Global.ZennoExtensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -573,6 +574,28 @@ namespace ZennoHelper
 
             GetElement(xpathCheckDownload, logGoodCheckDownload, timeoutCheckDownload, endCycleCheckDownload, indexCheckDownload, showInPosterGoodCheckDownload);
         }
+
+        /// <summary>
+        /// Парсинг атрибутов по xpath с возможностью выбрать содержание
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="attr"></param>
+        /// <param name="contains"></param>
+        /// <returns></returns>
+        public List<string> Parsing(string xpath, string attr, string contains = "", ZennoLab.InterfacesLibrary.Enums.Parser.FilterType filterType = ZennoLab.InterfacesLibrary.Enums.Parser.FilterType.None)
+        {
+            // Получаем атрибут attr всех элементов, соответствующих пути xpath
+            var attributes = ZennoPoster.Parser.ParseByXpath(instance.ActiveTab, ZennoLab.InterfacesLibrary.Enums.Parser.SourceType.Dom, xpath, attr, true).ToList();
+            // Фильтруем элементы
+            attributes.Filter(filterType, contains);
+            // Выбираем элементы из диапазона "all"
+            attributes.Range("all");
+
+            return attributes;
+        }
+
+  
+
 
     }
 }
