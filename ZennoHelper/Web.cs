@@ -352,6 +352,34 @@ namespace ZennoHelper
 
             CheckValueElement(element, text, logGoodCheck, showInPosterGoodCheck);
         }
+        /// <summary>
+        /// Установка значения для атрибута в ещё не найденном элементе
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="nameAttr"></param>
+        /// <param name="value"></param>
+        /// <param name="logGood"></param>
+        /// <param name="timeout"></param>
+        /// <param name="endCycle"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        public void SetValueAttribute(string xpath, string nameAttr, string value,
+            string logGood = "Элемент для SetAttribute найден", int timeout = 10, int endCycle = 2, int index = 0,
+            bool showInPosterGood = false)
+        {
+            var element = GetElement(xpath, logGood, timeout,endCycle,index, showInPosterGood );
+            element.SetAttribute(nameAttr, value);
+        }
+        /// <summary>
+        /// Установка значения для атрибута в уже найденом элементе
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="nameAttr"></param>
+        /// <param name="value"></param>
+        public void SetValueAttribute(HtmlElement element, string nameAttr, string value)
+        {
+            element.SetAttribute(nameAttr, value);
+        }
 
         /// <summary>
         /// ФулКлик через xpath с проверкой и попытками 
