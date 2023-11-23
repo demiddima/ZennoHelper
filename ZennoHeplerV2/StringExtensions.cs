@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZennoHelper
+namespace ZennoHelperV2
 {
     public static class StringExtensions
     {

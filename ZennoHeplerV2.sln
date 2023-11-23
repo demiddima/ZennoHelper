@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZennoHelper", "ZennoHelper\ZennoHelper.csproj", "{50DE976D-F454-45AA-8C3E-892F68084843}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZennoHeplerV2", "ZennoHeplerV2\ZennoHeplerV2.csproj", "{DB2A4FFC-9D24-48CD-8F6D-AA5B7E7D7A90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{50DE976D-F454-45AA-8C3E-892F68084843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{50DE976D-F454-45AA-8C3E-892F68084843}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{50DE976D-F454-45AA-8C3E-892F68084843}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{50DE976D-F454-45AA-8C3E-892F68084843}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB2A4FFC-9D24-48CD-8F6D-AA5B7E7D7A90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB2A4FFC-9D24-48CD-8F6D-AA5B7E7D7A90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB2A4FFC-9D24-48CD-8F6D-AA5B7E7D7A90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB2A4FFC-9D24-48CD-8F6D-AA5B7E7D7A90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {AC5CC2F7-5DBF-4F20-939A-08F619B7C5EF}
+		SolutionGuid = {DA9B1EE0-9C05-4A17-99DD-75C48398192B}
 	EndGlobalSection
 EndGlobal

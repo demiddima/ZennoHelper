@@ -12,7 +12,7 @@ using ZennoLab.InterfacesLibrary.Enums.Log;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace ZennoHelper
+namespace ZennoHelperV2
 {
     public class Web : Main
     {
@@ -78,6 +78,58 @@ namespace ZennoHelper
             }
             throw new Exception($"GetElementAttribute error: element '{tag}[@{attrName} = '{attrValue}']' не найден за {endCycle} попыток по {timeout} миллисекунд каждая");
         }
+        /// <summary>
+        /// Поиск элемента по положительному размеру без коллекции 
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="logGood"></param>
+        /// <param name="timeout"></param>
+        /// <param name="endCycle"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public HtmlElement GetElementBySize(string xpath, string logGood = "GetElementBySize элемент для проверки размера найден", int timeout = 100,
+            int endCycle = 10, int index = 0, bool showInPosterGood = false)
+        {
+            for (int i = 0; i < endCycle; i++)
+            {
+                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
+                string width = element.GetAttribute("width");
+                if (int.Parse(width) > 0)
+                {
+                    project.SendToLog(logGood, LogType.Info, showInPosterGood, LogColor.Green);
+                    return element;
+                }
+                Thread.Sleep(timeout);
+            }
+            throw new Exception($"GetElementBySize error: element '{xpath}' не найден за {endCycle} попыток по {timeout} миллисекунд каждая");
+        }
+
+        /// <summary>
+        /// Поиск элемента по положительному размеру в коллекции
+        /// </summary>
+        /// <param name="xpathCollection"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public HtmlElement GetElementByWidthInCollection(string xpathCollection)
+        {
+            HtmlElementCollection collection = instance.ActiveTab.FindElementsByXPath(xpathCollection);
+
+            if (collection.Count > 0)
+            {
+                foreach (var el in collection)
+                {
+                    int width = int.Parse(el.GetAttribute("width"));
+                    if (width > 0)
+                    {
+                        return el;
+                    }
+                }               
+            }
+            throw new Exception($"GetElementByWidthInCollection: в коллекции по xpath {xpathCollection} не было найден ни одного элемента с положительной шириной");
+
+        }
 
         /// <summary>
         /// Проверка существование html-элемента по его XPath
@@ -108,8 +160,8 @@ namespace ZennoHelper
         /// <param name="logGood"></param>
         /// <param name="showInPosterGood"></param>
         /// <exception cref="Exception"></exception>
-        public virtual void CheckValueElement(HtmlElement element, string text,
-            string logGood, bool showInPosterGood = false)
+        public void CheckValueElement(HtmlElement element, string text,
+            string logGood = "CheckValueElement значение элемента совпадает с проверяемым", bool showInPosterGood = false)
         {
             string valueElement = element.GetValue();
             if (valueElement.Contains(text))
@@ -130,7 +182,7 @@ namespace ZennoHelper
         /// <param name="emulation"></param>
         /// <param name="addend"></param>
         /// <param name="showInPosterGood"></param>
-        public virtual void SetValue(HtmlElement element, string text,
+        public void SetValue(HtmlElement element, string text,
             string logGood, string emulation = "None",
             bool addend = false, bool showInPosterGood = false)
         {
@@ -148,7 +200,7 @@ namespace ZennoHelper
         /// <param name="addend"></param>
         /// <param name="index"></param>
         /// <param name="showInPosterGood"></param>
-        public virtual void SetValue(string xpath,string logGoodFind, string text, string logGoodCheck, 
+        public void SetValue(string xpath,string logGoodFind, string text, string logGoodCheck, 
             int timeout = 250, int endCycle = 2, string emulation = "None", bool addend = false, 
             int indexFind = 0, bool showInPosterGoodFind = false, bool showInPosterGoodCheck = false)
 
@@ -172,7 +224,7 @@ namespace ZennoHelper
         /// <param name="index"></param>
         /// <param name="showInPosterGood"></param>
         /// <returns></returns>
-        public virtual HtmlElement NavigateWithoutTry(string url, string xpath,
+        public HtmlElement NavigateWithoutTry(string url, string xpath,
             string logGood, string referrer = null, int timeout = 10000, int endCycle = 10, int index = 0,
             bool showInPosterGood = false)
         {
@@ -193,7 +245,7 @@ namespace ZennoHelper
         /// <param name="showInPosterGood"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public virtual HtmlElement NavigateWithTry(string url, string xpath,
+        public HtmlElement NavigateWithTry(string url, string xpath,
             string logGood, string referrer, int timeout = 1000, int endCycle = 10, int index = 0,
             bool showInPosterGood = false)
         {
@@ -233,7 +285,7 @@ namespace ZennoHelper
         /// <param name="addend"></param>
         /// <param name="index"></param>
         /// <param name="showInPosterGood"></param>
-        public virtual void SetValueWithoutCheck(string xpath, string text, string logGood,
+        public void SetValueWithoutCheck(string xpath, string text, string logGood,
            int timeout = 500, int endCycle = 10, int index = 0, string emulation = "None", bool addend = false, bool showInPosterGood = false)
         {
             HtmlElement element = GetElement(xpath, logGood, timeout, endCycle, index, showInPosterGood);
@@ -249,7 +301,7 @@ namespace ZennoHelper
         /// <param name="emulation"></param>
         /// <param name="addend"></param>
         /// <param name="showInPosterGood"></param>
-        public virtual void SetValueWithoutCheck(HtmlElement element, string text,
+        public void SetValueWithoutCheck(HtmlElement element, string text,
             string logGood, string emulation = "None",
             bool addend = false, bool showInPosterGood = false)
         {
@@ -261,7 +313,7 @@ namespace ZennoHelper
         /// ФулКлик мышью по уже найденному html-элементу с предварительной наводкой на него
         /// </summary>
         /// <param name="element">HtmlElement</param>
-        private void FullClick(HtmlElement element)
+        public void FullClick(HtmlElement element)
         {
             instance.ActiveTab.FullEmulationMouseMoveToHtmlElement(element);
             instance.ActiveTab.FullEmulationMouseClick("left", "click");
@@ -275,7 +327,7 @@ namespace ZennoHelper
         /// <param name="endCycle"></param>
         /// <param name="index"></param>
         /// <param name="showInPosterGood"></param>
-        private void FullClick(string xpath, string logGood, int timeout = 10, int endCycle = 2, int index = 0, bool showInPosterGood = false)
+        public void FullClick(string xpath, string logGood, int timeout = 10, int endCycle = 2, int index = 0, bool showInPosterGood = false)
         {
             HtmlElement element = GetElement(xpath, logGood, timeout, endCycle, index, showInPosterGood);
             instance.ActiveTab.FullEmulationMouseMoveToHtmlElement(element);
@@ -286,7 +338,7 @@ namespace ZennoHelper
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        private void FullClick(int x, int y)
+        public void FullClick(int x, int y)
         {
             instance.ActiveTab.FullEmulationMouseMove(x, y);
             instance.ActiveTab.FullEmulationMouseClick("left", "click");
@@ -297,7 +349,7 @@ namespace ZennoHelper
         /// </summary>
         /// <param name="element">HtmlElement</param>
         /// <param name="emulation">Уровень эмуляции: None, Middle, Full, SuperEmulation</param>
-        private void Click(HtmlElement element, string emulation = "None")
+        public void Click(HtmlElement element, string emulation = "None")
         {
             element.RiseEvent("click", emulation);
         }
@@ -308,7 +360,7 @@ namespace ZennoHelper
         /// <param name="xpath">Путь XPath для элемента</param>
         /// <param name="index">Индекс XPath для элемента</param>
         /// <param name="emulation">Уровень эмуляции: None, Middle, Full, SuperEmulation</param>
-        private void Click(string xpath, string logGood, int timeout = 10, int endCycle = 2, int index = 0, string emulation = "None", bool showInPosterGood = false)
+        public void Click(string xpath, string logGood, int timeout = 10, int endCycle = 2, int index = 0, string emulation = "None", bool showInPosterGood = false)
         {
             HtmlElement element = GetElement(xpath, logGood, timeout, endCycle, index, showInPosterGood);
             element.RiseEvent("click", emulation);
@@ -327,7 +379,7 @@ namespace ZennoHelper
         /// <param name="logGoodCheck"></param>
         /// <param name="showInPosterGoodFullClick"></param>
         /// <param name="showInPosterGoodCheck"></param>
-        private void SetValueFull(string xpathFullClick, string text, int latency = 20,
+        public void SetValueFull(string xpathFullClick, string text, int latency = 20,
             string logGoodFullClick = "Элемент для FullClick найден", int timeoutFullClick = 10, int endCycleFullClick = 2, int indexFullClick = 0,
             string logGoodCheck = "Value элемента изменено!", bool showInPosterGoodFullClick = false, bool showInPosterGoodCheck = false)
         {
@@ -345,7 +397,7 @@ namespace ZennoHelper
         /// <param name="latency">Задержка между вводимыми символами</param>
         /// <param name="showInPosterGood">Разрешить или запретить вывод удачного выполнения в ЗенноПостер</param>
         /// <exception cref="Exception"></exception>
-        private void SetValueFull(HtmlElement element, string text, int latency = 20,
+        public void SetValueFull(HtmlElement element, string text, int latency = 20,
             string logGoodCheck = "Value элемента изменено!", bool showInPosterGoodCheck = false)
         {
             FullClick(element);
@@ -395,7 +447,7 @@ namespace ZennoHelper
         /// <param name="indexCheckElement"></param>
         /// <param name="showInPosterGoodCheckElement"></param>
         /// <exception cref="Exception"></exception>
-        private void FullClickWithCheck(string fullClickXpath, string xpathCheckElement,
+        public void FullClickWithCheck(string fullClickXpath, string xpathCheckElement,
             string logGoodClickXpath = "Элемент для FullClick найден", int indexFullClickElement = 0,
             string logGoodCheck = "FullClickWithCheck по элементу удался!", int timeoutCheckElement = 1000,
             int endCycleCheckElement = 10, int indexCheckElement = 0, bool showInPosterGoodCheckElement = false)
@@ -426,12 +478,12 @@ namespace ZennoHelper
         /// <param name="fullClickElement"></param>
         /// <param name="xpathCheckElement"></param>
         /// <param name="timeoutCheckElement"></param>
-        /// <param name="logGood"></param>
-        /// <param name="endCycle"></param>
+        /// <param name="logGoodCheck"></param>
+        /// <param name="endCycleCheckElement"></param>
         /// <param name="indexCheckElement"></param>
-        /// <param name="showInPosterGood"></param>
+        /// <param name="showInPosterGoodCheckElement"></param>
         /// <exception cref="Exception"></exception>
-        private void FullClickWithCheck(HtmlElement fullClickElement, string xpathCheckElement, int timeoutCheckElement,
+        public void FullClickWithCheck(HtmlElement fullClickElement, string xpathCheckElement, int timeoutCheckElement,
            string logGoodCheck = "FullClickWithCheck по элементу удался!", int endCycleCheckElement = 10,
            int indexCheckElement = 0, bool showInPosterGoodCheckElement = false)
         {
@@ -458,17 +510,18 @@ namespace ZennoHelper
         /// <summary>
         /// Клик по элементу по его xpath с выбором эмуляции, проверкой и попытками 
         /// </summary>
-        /// <param name="clickXpath"></param>
+        /// <param name="xpathClick"></param>
         /// <param name="xpathCheckElement"></param>
-        /// <param name="timeoutCheckElement"></param>
+        /// <param name="logGoodClick"></param>
+        /// <param name="indexClick"></param>
         /// <param name="emulation"></param>
-        /// <param name="logGood"></param>
-        /// <param name="endCycle"></param>
+        /// <param name="logGoodCheck"></param>
+        /// <param name="timeoutCheckElement"></param>
+        /// <param name="endCycleCheckElement"></param>
         /// <param name="indexCheckElement"></param>
-        /// <param name="indexClickElement"></param>
-        /// <param name="showInPosterGood"></param>
+        /// <param name="showInPosterGoodCheckElement"></param>
         /// <exception cref="Exception"></exception>
-        private void ClickWithCheck(string xpathClick, string xpathCheckElement,
+        public void ClickWithCheck(string xpathClick, string xpathCheckElement,
             string logGoodClick = "Click по элементу удался!", int indexClick = 0, string emulation = "None",
             string logGoodCheck = "ClickWithCheck по элементу удался!", int timeoutCheckElement = 0, int endCycleCheckElement = 10, int indexCheckElement = 0,
            bool showInPosterGoodCheckElement = false)
@@ -498,14 +551,14 @@ namespace ZennoHelper
         /// </summary>
         /// <param name="clickElement"></param>
         /// <param name="xpathCheckElement"></param>
-        /// <param name="timeoutCheckElement"></param>
         /// <param name="emulation"></param>
-        /// <param name="logGood"></param>
-        /// <param name="endCycle"></param>
+        /// <param name="logGoodCheck"></param>
+        /// <param name="timeoutCheckElement"></param>
+        /// <param name="endCycleCheckElement"></param>
         /// <param name="indexCheckElement"></param>
-        /// <param name="showInPosterGood"></param>
+        /// <param name="showInPosterGoodCheckElement"></param>
         /// <exception cref="Exception"></exception>
-        private void ClickWithCheck(HtmlElement clickElement, string xpathCheckElement, string emulation = "None",
+        public void ClickWithCheck(HtmlElement clickElement, string xpathCheckElement, string emulation = "None",
            string logGoodCheck = "ClickWithCheck по элементу удался!", int timeoutCheckElement = 1000, int endCycleCheckElement = 10,
            int indexCheckElement = 0, bool showInPosterGoodCheckElement = false)
         {
@@ -531,21 +584,56 @@ namespace ZennoHelper
         }
 
         /// <summary>
-        /// Нажатие клавиши ENTER
+        /// Нажатие на кнопку клавиатуры в цикле без проверки
         /// </summary>
-        private void ENTER()
+        /// <param name="button"></param>
+        /// <param name="endCycle"></param>
+        public void ButtonInCycle(string button,int endCycle = 1)
         {
-            instance.WaitFieldEmulationDelay();
-            instance.SendText("{ENTER}", 15);
+            for (int i = 0; i < endCycle; i++)
+            {
+                instance.WaitFieldEmulationDelay();
+                instance.SendText($"{button}", 15);
+            }
+            
         }
+        
         /// <summary>
-        /// Нажатие клавиши TAB
+        /// Нажатие на кнопку клавиатуры в циклве и проверкой
         /// </summary>
-        private void TAB()
+        /// <param name="button"></param>
+        /// <param name="xpathCheckElement"></param>
+        /// <param name="endCycleButton"></param>
+        /// <param name="logGoodCheck"></param>
+        /// <param name="timeoutCheckElement"></param>
+        /// <param name="endCycleCheckElement"></param>
+        /// <param name="indexCheckElement"></param>
+        /// <param name="showInPosterGoodCheckElement"></param>
+        /// <exception cref="Exception"></exception>
+        public void ButtonInCycleWithCheck(string button, string xpathCheckElement, int endCycleButton = 1,
+            string logGoodCheck = "ButtonInCycleWithCheck нажатие на клавишу дало нужный результат", int timeoutCheckElement = 300, 
+            int endCycleCheckElement = 10, int indexCheckElement = 0, bool showInPosterGoodCheckElement = false)
         {
-            instance.WaitFieldEmulationDelay();
-            instance.SendText("{TAB}", 15);
+            for (int i = 0; i < endCycleButton; i++)
+            {
+                try
+                {
+                    instance.WaitFieldEmulationDelay();
+                    instance.SendText($"{button}", 15);
+
+                    GetElement(xpathCheckElement, logGoodCheck, timeoutCheckElement, endCycleCheckElement, indexCheckElement, showInPosterGoodCheckElement);
+                }
+                catch (Exception ex)
+                {
+                    if (i == 2)
+                    {
+                        throw new Exception("Ошибка выполнения ButtonInCycleWithCheck: " + ex.Message);
+                    }
+                    continue;
+                }                
+            }
         }
+
         /// <summary>
         /// Загрузка файла на сервер с проверкой
         /// </summary>
@@ -563,7 +651,7 @@ namespace ZennoHelper
         /// <param name="showInPosterGoodFullClick"></param>
         /// <param name="showInPosterGoodCheckDownload"></param>
         public virtual void DownloadFile(string pathFile, string xpathFullClick, string xpathCheckDownload,
-            string logGoodFullClick = "Элемент загрузки файла для FullClick найден!", int timeoutFullClick = 10, int endCycleFullClick = 2, int indexFullClick = 0,
+            string logGoodFullClick = "Элемент загрузки файла для FullClick найден!", int timeoutFullClick = 100, int endCycleFullClick = 2, int indexFullClick = 0,
             string logGoodCheckDownload = "Файл успешно загружен!", int timeoutCheckDownload = 500, int endCycleCheckDownload = 10, int indexCheckDownload = 0,
             bool showInPosterGoodFullClick = false, bool showInPosterGoodCheckDownload = false)
         {

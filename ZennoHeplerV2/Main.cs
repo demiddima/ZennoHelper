@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace ZennoHelper
+namespace ZennoHelperV2
 {
     public class Main
     {

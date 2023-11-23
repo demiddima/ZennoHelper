@@ -1,7 +1,18 @@
-﻿using ZennoLab.CommandCenter;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Net.Sockets;
+using System.Resources;
+using System.Text;
+using ZennoLab.CommandCenter;
+using ZennoLab.Emulation;
 using ZennoLab.InterfacesLibrary.ProjectModel;
+using ZennoLab.InterfacesLibrary.ProjectModel.Enums;
 
-namespace ZennoHelper
+namespace ZennoHeplerV2
 {
     /// <summary>
     /// Класс для запуска выполнения скрипта
@@ -16,8 +27,9 @@ namespace ZennoHelper
         /// <returns>Код выполнения скрипта</returns>		
         public int Execute(Instance instance, IZennoPosterProjectModel project)
         {
-                      
-            return 0;
+            int executionResult = 0;
+
+            return executionResult;
         }
     }
 }

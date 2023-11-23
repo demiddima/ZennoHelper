@@ -6,7 +6,7 @@ using ZennoLab.CommandCenter;
 using ZennoLab.Emulation;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace ZennoHelper
+namespace ZennoHelperV2
 {
     public class WebPhone : Web
     {
@@ -15,11 +15,6 @@ namespace ZennoHelper
 
         }
 
-
-        public override void CheckValueElement(HtmlElement element, string text, string logGood, bool showInPosterGood = false)
-        {
-            base.CheckValueElement(element, text, logGood, showInPosterGood);
-        }
 
         /// <summary>
         /// Нажатие по элементу через поиск по xpath
