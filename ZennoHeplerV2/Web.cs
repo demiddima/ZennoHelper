@@ -135,11 +135,10 @@ namespace ZennoHelperV2
         /// Проверка существование html-элемента по его XPath
         /// </summary>
         /// <param name="xpath"></param>
-        /// <param name="logGood"></param>
         /// <param name="timeout"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        public virtual bool BoolElement(string xpath, string logGood,
+        public bool BoolElement(string xpath,
             int timeout = 50, int endCycle = 5, int index = 0)
         {
             for(int i = 0; i < endCycle; i++)
@@ -151,7 +150,31 @@ namespace ZennoHelperV2
             }
             return false;
         }
+        /// <summary>
+        /// Ожидание исчезновение элемента
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="timeout"></param>
+        /// <param name="wait"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public bool DisappearElement(string xpath, int timeout = 5000, int wait = 250, int index = 0)
+        {
+            DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
 
+            while (DateTime.Now < timeoutDT)
+            {
+                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
+                if (!element.IsVoid)
+                {
+                    Thread.Sleep(wait);
+                    continue;
+                }
+                return true;
+            }
+            throw new Exception($"DisappearElement error: element '{xpath}' не исчез за {timeout} миллисекунд");
+        }
         /// <summary>
         /// Проверка value элемента на указанные данные
         /// </summary>
