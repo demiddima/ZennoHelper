@@ -21,32 +21,38 @@ namespace ZennoHelperV2
         {
 
         }
+
+
+        #region Базовые методы
+
         /// <summary>
-        /// Поиск элемента по XPath
+        /// Получение элемента
         /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="logGood"></param>
-        /// <param name="timeout"></param>
-        /// <param name="endCycle"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
+        /// <param name="xpath">Путь xpath к элементу</param>
+        /// <param name="timeout">Время в течении которого элемент будет искаться</param>
+        /// <param name="wait">Перерыва между попытками получить элемент</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public virtual HtmlElement GetElement(string xpath, string logGood, int timeout =  100,
-            int endCycle = 10, int index = 0, bool showInPosterGood = false)
+        public HtmlElement GetElement(string xpath, int timeout = 1000, int wait = 250)
         {
-            for (int i = 0; i < endCycle; i++)
+
+            DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
+            while (DateTime.Now < timeoutDT)
             {
-                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
+                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, 0);
                 if (!element.IsVoid)
                 {
-                    project.SendToLog(logGood, LogType.Info, showInPosterGood, LogColor.Green);
+                    project.SendToLog($"GetElement confirming: элемент {xpath} получен", LogType.Info, false, LogColor.Blue);
                     return element;
                 }
-                Thread.Sleep(timeout);
+                Thread.Sleep(wait);
             }
-            throw new Exception($"GetElement error: element '{xpath}' не найден за {endCycle} попыток по {timeout} миллисекунд каждая");
+
+            throw new Exception($"GetElement error: элемент '{xpath}' не получен за {timeout} миллисекунд каждая");
         }
+
+        #endregion
+
         /// <summary>
         /// Получение html-элемента по его атрибуту
         /// </summary>
