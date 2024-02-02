@@ -42,7 +42,7 @@ namespace ZennoHelperV2
                 HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, 0);
                 if (!element.IsVoid)
                 {
-                    project.SendToLog($"GetElement confirming: элемент {xpath} получен", LogType.Info, false, LogColor.Blue);
+                    project.SendToLog($"GetElement  confirming: элемент {xpath} получен", LogType.Info, false, LogColor.Blue);
                     return element;
                 }
                 Thread.Sleep(wait);
@@ -138,24 +138,57 @@ namespace ZennoHelperV2
         }
 
         /// <summary>
-        /// Проверка существование html-элемента по его XPath
+        /// Проверка элемента на наличие
         /// </summary>
         /// <param name="xpath"></param>
         /// <param name="timeout"></param>
         /// <param name="index"></param>
         /// <returns></returns>
         public bool BoolElement(string xpath,
-            int timeout = 50, int endCycle = 5, int index = 0)
+                  int timeout = 5000, int index = 0, int wait = 300)
         {
-            for(int i = 0; i < endCycle; i++)
+            DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
+            while (DateTime.Now < timeoutDT)
             {
                 HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
                 if (!element.IsVoid)
+                {
+                    project.SendToLog($"BoolElement confirming: элемент {xpath} существует", LogType.Info, false, LogColor.Gray);
                     return true;
-                Thread.Sleep(timeout);
+                }
+                Thread.Sleep(wait);
             }
+            project.SendToLog($"BoolElement error: элемент {xpath} не существует", LogType.Warning, false, LogColor.Orange);
             return false;
         }
+
+        /// <summary>
+        /// Проверка элемента на наличие, с исключения в случае его не нахождения
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="wait"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public bool BoolElementWithError(string xpath,
+                 int timeout = 5000, int index = 0, int wait = 300)
+        {
+            DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
+            while (DateTime.Now < timeoutDT)
+            {
+                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
+                if (!element.IsVoid)
+                {
+                    project.SendToLog($"BoolElementWithError confirm: элемент {xpath} существует", LogType.Info, false, LogColor.Gray);
+                    return true;
+                }
+                Thread.Sleep(wait);
+            }
+            throw new Exception($"BoolElementWithError error: элементв '{xpath}' не существует");
+        }
+
+
         /// <summary>
         /// Ожидание исчезновение элемента
         /// </summary>
