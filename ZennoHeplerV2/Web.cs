@@ -190,15 +190,14 @@ namespace ZennoHelperV2
 
 
         /// <summary>
-        /// Ожидание исчезновение элемента
-        /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="timeout"></param>
-        /// <param name="wait"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public bool DisappearElement(string xpath, int timeout = 5000, int wait = 250, int index = 0)
+		/// Проверка на исчезновение ещё не найденного элемента, с исключением в случае не исчезновения
+		/// </summary>
+		/// <param name="xpath"></param>
+		/// <param name="timeout"></param>
+		/// <param name="index"></param>
+		/// <param name="wait"></param>
+		/// <returns></returns>
+		public bool DisappearElementWithError(string xpath, int timeout = 5000, int index = 0, int wait = 500)
         {
             DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
 
@@ -210,9 +209,88 @@ namespace ZennoHelperV2
                     Thread.Sleep(wait);
                     continue;
                 }
+                project.SendToLog($"DisappearElementWithError confirming: элемент {xpath} исчез", LogType.Info, false, LogColor.Gray);
                 return true;
             }
-            throw new Exception($"DisappearElement error: element '{xpath}' не исчез за {timeout} миллисекунд");
+            throw new Exception($"DisappearElementWithError error: элементв '{xpath}' не исчез за {timeout} миллисекунд");
+        }
+
+        /// <summary>
+        /// Проверка на исчезновение уже найденного элемента, с исключением в случае не исчезновения
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="wait"></param>
+        /// <returns></returns>
+        public bool DisappearElementWithError(HtmlElement element, int timeout = 5000, int index = 0, int wait = 500)
+        {
+            DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
+
+            while (DateTime.Now < timeoutDT)
+            {
+                if (!element.IsVoid)
+                {
+                    Thread.Sleep(wait);
+                    continue;
+                }
+                project.SendToLog($"DisappearElementWithError confirming: элемент {element.InnerHtml} исчез", LogType.Info, false, LogColor.Gray);
+                return true;
+            }
+            throw new Exception($"DisappearElementWithError error: элементв '{element.InnerHtml}' не исчез за {timeout} миллисекунд");
+        }
+
+        /// <summary>
+        /// Проверка на исчезновение элемента
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="wait"></param>
+        /// <returns></returns>
+        public bool DisappearElement(string xpath, int timeout = 5000, int index = 0, int wait = 500)
+        {
+            DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
+
+            while (DateTime.Now < timeoutDT)
+            {
+                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
+                if (!element.IsVoid)
+                {
+                    Thread.Sleep(wait);
+                    continue;
+                }
+                project.SendToLog($"DisappearElement confirming: элемент {xpath} исчез", LogType.Info, false, LogColor.Gray);
+                return true;
+            }
+            project.SendToLog($"DisappearElement error: элемент {xpath} не исчез", LogType.Warning, false, LogColor.Orange);
+            return false;
+        }
+
+        /// <summary>
+        /// Ожидание исчезновения уже найденного элемента
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="wait"></param>
+        /// <returns></returns>
+        public bool DisappearElement(HtmlElement element, int timeout = 5000, int wait = 500)
+        {
+            DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
+
+            while (DateTime.Now < timeoutDT)
+            {
+                if (!element.IsVoid)
+                {
+                    Thread.Sleep(wait);
+                    continue;
+                }
+                project.SendToLog($"DisappearElement confirming: элемент {element.InnerHtml} исчез", LogType.Info, false, LogColor.Gray);
+                return true;
+            }
+            throw new Exception($"DisappearElement error: элементв '{element.InnerHtml}' не исчез за {timeout} миллисекунд");
+
         }
         /// <summary>
         /// Проверка value элемента на указанные данные
