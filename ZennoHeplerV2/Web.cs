@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using ZennoLab.CommandCenter;
@@ -23,7 +24,7 @@ namespace ZennoHelperV2
         }
 
 
-        #region Базовые методы
+        #region Базовые простые методы
 
         /// <summary>
         /// Получение элемента
@@ -51,8 +52,6 @@ namespace ZennoHelperV2
             throw new Exception($"GetElement error: элемент '{xpath}' не получен за {timeout} миллисекунд каждая");
         }
 
-        #endregion
-
         /// <summary>
         /// Получение html-элемента по его атрибуту
         /// </summary>
@@ -68,7 +67,7 @@ namespace ZennoHelperV2
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public virtual HtmlElement GetElementAttribute(string tag, string attrName, string attrValue,
-            string searchKind, string logGood, int timeout = 1000, int endCycle = 10, int index = 0, 
+            string searchKind, string logGood, int timeout = 1000, int endCycle = 10, int index = 0,
             bool showInPosterGood = false)
 
         {
@@ -84,57 +83,20 @@ namespace ZennoHelperV2
             }
             throw new Exception($"GetElementAttribute error: element '{tag}[@{attrName} = '{attrValue}']' не найден за {endCycle} попыток по {timeout} миллисекунд каждая");
         }
-        /// <summary>
-        /// Поиск элемента по положительному размеру без коллекции 
-        /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="logGood"></param>
-        /// <param name="timeout"></param>
-        /// <param name="endCycle"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public HtmlElement GetElementBySize(string xpath, string logGood = "GetElementBySize элемент для проверки размера найден", int timeout = 100,
-            int endCycle = 10, int index = 0, bool showInPosterGood = false)
-        {
-            for (int i = 0; i < endCycle; i++)
-            {
-                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
-                string width = element.GetAttribute("width");
-                if (int.Parse(width) > 0)
-                {
-                    project.SendToLog(logGood, LogType.Info, showInPosterGood, LogColor.Green);
-                    return element;
-                }
-                Thread.Sleep(timeout);
-            }
-            throw new Exception($"GetElementBySize error: element '{xpath}' не найден за {endCycle} попыток по {timeout} миллисекунд каждая");
-        }
 
         /// <summary>
-        /// Поиск элемента по положительному размеру в коллекции
+        /// Получение значения арибута ещё не найденного элемента
         /// </summary>
-        /// <param name="xpathCollection"></param>
+        /// <param name="xpathElement"></param>
+        /// <param name="nameAttribute"></param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public HtmlElement GetElementByWidthInCollection(string xpathCollection)
+        public string GetValueAttribute(string xpathElement, string nameAttribute)
         {
-            HtmlElementCollection collection = instance.ActiveTab.FindElementsByXPath(xpathCollection);
+            HtmlElement element = instance.ActiveTab.FindElementByXPath(xpathElement, 0);
+            string value = element.GetAttribute(nameAttribute).Trim();
+            project.SendToLog($"GetValueAttribute confirming: значение атрибута '{nameAttribute}' элемента '{xpathElement}' получено", LogType.Info, false, LogColor.Gray);
 
-            if (collection.Count > 0)
-            {
-                foreach (var el in collection)
-                {
-                    int width = int.Parse(el.GetAttribute("width"));
-                    if (width > 0)
-                    {
-                        return el;
-                    }
-                }               
-            }
-            throw new Exception($"GetElementByWidthInCollection: в коллекции по xpath {xpathCollection} не было найден ни одного элемента с положительной шириной");
-
+            return value;
         }
 
         /// <summary>
@@ -292,28 +254,230 @@ namespace ZennoHelperV2
             throw new Exception($"DisappearElement error: элементв '{element.InnerHtml}' не исчез за {timeout} миллисекунд");
 
         }
+
+
+        /// <summary>
+        /// Поиск элемента по положительному размеру без коллекции 
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <param name="logGood"></param>
+        /// <param name="timeout"></param>
+        /// <param name="endCycle"></param>
+        /// <param name="index"></param>
+        /// <param name="showInPosterGood"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public HtmlElement GetElementBySize(string xpath, string logGood = "GetElementBySize элемент для проверки размера найден", int timeout = 100,
+            int endCycle = 10, int index = 0, bool showInPosterGood = false)
+        {
+            for (int i = 0; i < endCycle; i++)
+            {
+                HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath, index);
+                string width = element.GetAttribute("width");
+                if (int.Parse(width) > 0)
+                {
+                    project.SendToLog(logGood, LogType.Info, showInPosterGood, LogColor.Green);
+                    return element;
+                }
+                Thread.Sleep(timeout);
+            }
+            throw new Exception($"GetElementBySize error: element '{xpath}' не найден за {endCycle} попыток по {timeout} миллисекунд каждая");
+        }
+
+
         /// <summary>
         /// Проверка value элемента на указанные данные
         /// </summary>
         /// <param name="element"></param>
+        /// <param name="xpath"></param>
         /// <param name="text"></param>
-        /// <param name="logGood"></param>
-        /// <param name="showInPosterGood"></param>
         /// <exception cref="Exception"></exception>
-        public void CheckValueElement(HtmlElement element, string text,
-            string logGood = "CheckValueElement значение элемента совпадает с проверяемым", bool showInPosterGood = false)
+        public void CheckValueElement(HtmlElement element, string xpath, string text)
         {
             string valueElement = element.GetValue();
             if (valueElement.Contains(text))
             {
-                project.SendToLog(logGood, LogType.Info, showInPosterGood, LogColor.Green);
+                project.SendToLog($"CheckValueElement confirming: у элемента '{xpath}' совпадает value с назначенным '{text}'", LogType.Info, false, LogColor.Gray);
             }
             else
             {
-                throw new Exception($"CheckValueElement error: element '{element.GetAttribute("innerHtml")}' c значением '{text}' не найден");
+                throw new Exception($"CheckValueElement error: element '{xpath}' c значением '{text}' не найден");
             }
         }
-     
+
+
+        /// <summary>
+        /// Получение элемента из коллекции по его положительной ширине, с исключением в случае не нахождения+
+        /// </summary>
+        /// <param name="xpathCollection"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public HtmlElement GetElementByWidthPositiveInCollection(string xpathCollection, int timeout = 500, int wait = 200)
+        {
+
+            DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
+
+            while (DateTime.Now < timeoutDT)
+            {
+                HtmlElementCollection collection = instance.ActiveTab.FindElementsByXPath(xpathCollection);
+                if (collection.Count > 0)
+                {
+                    foreach (var el in collection)
+                    {
+                        int width = int.Parse(el.GetAttribute("width"));
+                        if (width > 0)
+                        {
+                            project.SendToLog($"GetElementByWidthPositiveInCollection confirming: элемент из коллекции {xpathCollection} с положительной шириной получен", LogType.Info, false, LogColor.Gray);
+                            return el;
+                        }
+                    }
+                }
+                Thread.Sleep(wait);
+            }
+            throw new Exception($"GetElementByWidthInCollection error: в коллекции по xpath {xpathCollection} не было найдено ни одного элемента с положительной шириной");
+        }
+
+        /// <summary>
+        /// Получение элемента из коллекции по его отрицательной ширине, с исключением в случае не нахождения
+        /// </summary>
+        /// <param name="xpathCollection"></param>
+        /// <param name="timeout"></param>
+        /// <param name="wait"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public HtmlElement GetElementByNegativeWidthInCollection(string xpathCollection, int timeout = 500, int wait = 200)
+        {
+
+            DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
+
+            while (DateTime.Now < timeoutDT)
+            {
+                HtmlElementCollection collection = instance.ActiveTab.FindElementsByXPath(xpathCollection);
+                if (collection.Count > 0)
+                {
+                    foreach (var el in collection)
+                    {
+                        int width = int.Parse(el.GetAttribute("width"));
+                        if (width < 0)
+                        {
+                            project.SendToLog($"GetElementByNegativeWidthInCollection congirming: элемент из коллекции {xpathCollection} с отрицательной шириной получен", LogType.Info, false, LogColor.Gray);
+                            return el;
+                        }
+                    }
+                }
+                Thread.Sleep(wait);
+            }
+            throw new Exception($"GetElementByWidthInCollection error: в коллекции по xpath {xpathCollection} не было найдено ни одного элемента с отрицательной шириной");
+        }
+
+        #endregion
+
+        #region Базовые сложные методы
+
+        /// <summary>
+        /// Поиск на странице одного элемента из коллеции с возвратом 2-х XPath - элемент, который ищется и элемент, который к нему привязывается
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="xpathKey"></param>
+        /// <param name="xpathValue"></param>
+        /// <param name="timeout"></param>
+        /// <param name="wait"></param>
+        /// <returns></returns>
+        public bool GetFoundElement(Dictionary<string, string> dictionary, out string xpathKey, out string xpathValue, int timeout = 5000, int wait = 400)
+        {
+            DateTime timeoutDT = DateTime.Now.AddMilliseconds(timeout);
+            xpathValue = String.Empty;
+            xpathKey = String.Empty;
+
+            while (DateTime.Now < timeoutDT)
+            {
+                foreach (var xpath in dictionary)
+                {
+                    HtmlElement element = instance.ActiveTab.FindElementByXPath(xpath.Key, 0);
+                    if (!element.IsVoid)
+                    {
+                        project.SendToLog($"GetFoundElement confirming: элемент {xpath.Key} существует на текущей странице", LogType.Info, false, LogColor.Gray);
+                        xpathKey = xpath.Key;
+                        xpathValue = xpath.Value;
+                        return true;
+                    }
+                }
+                Thread.Sleep(wait);
+            }
+            project.SendToLog($"GetFoundElement confirming: не один из элементов коллекции не существует на текущей странице", LogType.Info, false, LogColor.Gray);
+            return false;
+        }
+
+        /// <summary>
+        /// Перебор элементов в цикле с кликом на каждый, с получением элемента изменения и проверкой атрибута у этого элемента на соответствие заданному значению
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="nameAttribut"></param>
+        /// <param name="value"></param>
+        /// <param name="xpathAction"></param>
+        /// <param name="xpathNextAction"></param>
+        public void ActionRightElements(Dictionary<string, string> dictionary, string nameAttribut, string value, string xpathAction, string xpathNextAction = null)
+        {
+            foreach (var xpath in dictionary)
+            {
+                HtmlElement element = FullClickGet(xpath.Key, xpath.Value);
+                string attribut = element.GetAttribute(nameAttribut);
+
+                if (attribut.Contains(value))
+                {
+                    FullClickDisappear(xpathAction);
+                    project.SendToLog($"ActionRightElements confirming: элемент '{xpath.Value}' содержит в себе '{value}'", LogType.Info, false, LogColor.Gray);
+                    break;
+                }
+                else
+                {
+                    if (xpathNextAction == null)
+                    {
+                        continue;
+                    }
+                    FullClickDisappear(xpathNextAction);
+                    continue;
+                }
+            }
+
+        }
+
+        #endregion
+
+
+        #region Клики
+
+
+
+        #endregion
+
+
+        #region Разное
+
+        /// <summary>
+        /// Получеть значени после регулярки
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="regex"></param>
+        /// <returns></returns>
+        public string GetValueRegex(string text, string regex)
+        {
+            Match match = Regex.Match(text, $@"{regex}");
+            return match.Value;
+        }
+
+        #endregion
+
+
+
+
+
+
+
+
+
+      
+
         /// <summary>
         /// Вставка value в элемент с проверкой
         /// </summary>
