@@ -66,7 +66,7 @@ namespace ZennoHelperV2
         /// <param name="showInPosterGood"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public virtual HtmlElement GetElementAttribute(string tag, string attrName, string attrValue,
+        public HtmlElement GetElementAttribute(string tag, string attrName, string attrValue,
             string searchKind, string logGood, int timeout = 1000, int endCycle = 10, int index = 0,
             bool showInPosterGood = false)
 
@@ -447,6 +447,445 @@ namespace ZennoHelperV2
 
         #region Клики
 
+        /// <summary>
+        /// Клик по элементу с выбором эмуляции и получением его с помощью метода GetElement
+        /// </summary>
+        /// <param name="xpathClick"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="wait"></param>
+        /// <param name="emulation"></param>
+        /// <returns></returns>
+        public HtmlElement Click(string xpathClick, int timeout = 1000,
+                 int wait = 250, string emulation = "None")
+        {
+            HtmlElement element = GetElement(xpathClick, timeout, wait);
+            element.RiseEvent("click", emulation);
+            project.SendToLog($"Click confirming: по элементу {xpathClick}", LogType.Info, false, LogColor.Gray);
+            return element;
+        }
+
+        /// <summary>
+        /// Клик по уже найденному элементу с выбором эмуляции
+        /// </summary>
+        /// <param name="elementClick"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="wait"></param>
+        /// <param name="emulation"></param>
+        public void Click(HtmlElement elementClick, string emulation = "None")
+        {
+            elementClick.RiseEvent("click", emulation);
+            project.SendToLog($"Click confirming: по элементу {elementClick.InnerHtml}", LogType.Info, false, LogColor.Gray);
+        }
+
+
+        /// <summary>
+        /// 
+        /// 
+        /// </summary>
+        /// <param name="xpathFullClick"></param>
+        /// <param name="timeout"></param>
+        /// <param name="index"></param>
+        /// <param name="wait"></param>
+        /// <returns></returns>
+        public HtmlElement FullClick(string xpathFullClick, int timeout = 1000, int wait = 250)
+        {
+            HtmlElement element = GetElement(xpathFullClick, timeout, wait);
+            instance.ActiveTab.FullEmulationMouseMoveToHtmlElement(element);
+            instance.ActiveTab.FullEmulationMouseClick("left", "click");
+            project.SendToLog($"FullClick confirming: по элементу {xpathFullClick}", LogType.Info, false, LogColor.Gray);
+            return element;
+        }
+
+        /// <summary>
+        /// ФулКлик по уже найденному элементу
+        /// </summary>
+        /// <param name="element"></param>
+        public void FullClick(HtmlElement element)
+        {
+            instance.ActiveTab.FullEmulationMouseMoveToHtmlElement(element);
+            instance.ActiveTab.FullEmulationMouseClick("left", "click");
+            project.SendToLog($"FullClick confirming: по элементу {element.InnerHtml}", LogType.Info, false, LogColor.Gray);
+        }
+
+
+        /// <summary>
+		/// Клик по ещё не найденному элементу с выбором эмуляции и получением элемента проверки
+		/// </summary>
+		/// <param name="xpathClick"></param>
+		/// <param name="xpathGet"></param>
+		/// <param name="timeoutGet"></param>
+		/// <param name="waitGet"></param>
+		/// <param name="emulation"></param>
+		/// <returns></returns>
+		public HtmlElement ClickGet(string xpathClick, string xpathGet, int timeoutGet = 6000, int waitGet = 500, string emulation = "None")
+        {
+            project.SendToLog($"Начало работы метода ClickGet", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    Click(xpathClick, emulation: emulation);
+                    HtmlElement element = GetElement(xpathGet, timeoutGet, wait: waitGet);
+                    project.SendToLog($"Завершение работы метода ClickGet", LogType.Info, false, LogColor.Green);
+                    return element;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения ClickGet: " + ex.Message);
+
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+            throw new Exception("Ошибка выполнения ClickGet: ");
+        }
+
+        /// <summary>
+        /// Клик по уже не найденному элементу с выбором эмуляции и получением элемента проверки
+        /// </summary>
+        /// <param name="elementClick"></param>
+        /// <param name="xpathGet"></param>
+        /// <param name="timeoutGet"></param>
+        /// <param name="waitGet"></param>
+        /// <param name="emulation"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public HtmlElement ClickGet(HtmlElement elementClick, string xpathGet, int timeoutGet = 6000, int waitGet = 500, string emulation = "None")
+        {
+            project.SendToLog($"Начало работы метода ClickGet", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    Click(elementClick, emulation: emulation);
+                    HtmlElement element = GetElement(xpathGet, timeoutGet, wait: waitGet);
+                    project.SendToLog($"Завершение работы метода ClickGet", LogType.Info, false, LogColor.Green);
+                    return element;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения ClickGet: " + ex.Message);
+
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+            throw new Exception("Ошибка выполнения ClickGet: ");
+        }
+
+        /// <summary>
+        /// Клик по ещё не найденному элементу с выбором эмуляции и проверкой изменения value другого элемента
+        /// </summary>
+        /// <param name="xpathClick"></param>
+        /// <param name="xpathGet"></param>
+        /// <param name="valueCheck"></param>
+        /// <param name="timeoutGet"></param>
+        /// <param name="waitGet"></param>
+        /// <param name="emulation"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public HtmlElement ClickCheckValue(string xpathClick, string xpathGet, string valueCheck, int timeoutGet = 10000, int waitGet = 500, string emulation = "None")
+        {
+            project.SendToLog($"Начало работы метода ClickGet", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    Click(xpathClick, emulation: emulation);
+                    HtmlElement element = GetElement(xpathGet, timeoutGet, wait: waitGet);
+                    CheckValueElement(element, xpathGet, valueCheck);
+                    project.SendToLog($"Завершение работы метода ClickGet", LogType.Info, false, LogColor.Green);
+                    return element;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения ClickGet: " + ex.Message);
+
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+            throw new Exception("Ошибка выполнения ClickGet: ");
+        }
+
+
+        /// <summary>
+        /// Клик по ещё не найденному элементу с выбором эмуляции и ожиданием его исчезновения
+        /// </summary>
+        /// <param name="xpathClick"></param>
+        /// <param name="timeoutDisappear"></param>
+        /// <param name="waitDisappear"></param>
+        /// <param name="emulation"></param>
+        /// <exception cref="Exception"></exception>
+        public void ClickDisappear(string xpathClick, int timeoutDisappear = 10000, int waitDisappear = 500, string emulation = "None")
+        {
+            project.SendToLog($"Начало работы метода ClickDisappear", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    Click(xpathClick, emulation: emulation);
+                    DisappearElementWithError(xpathClick, timeoutDisappear, wait: waitDisappear);
+                    project.SendToLog($"Завершение работы метода ClickDisappear", LogType.Info, false, LogColor.Green);
+                    break;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения ClickDisappear: " + ex.Message);
+
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Клик по уже найденному элементу с выбором эмуляции и ожиданием исчезновения элемента
+        /// </summary>
+        /// <param name="elementClick"></param>
+        /// <param name="xpathDisappear"></param>
+        /// <param name="timeoutDisappear"></param>
+        /// <param name="waitDisappear"></param>
+        /// <param name="emulation"></param>
+        /// <exception cref="Exception"></exception>
+        public void ClickDisappear(HtmlElement elementClick, string xpathDisappear, int timeoutDisappear = 10000, int waitDisappear = 500, string emulation = "None")
+        {
+            project.SendToLog($"Начало работы метода ClickDisappear", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    Click(elementClick, emulation: emulation);
+                    DisappearElementWithError(xpathDisappear, timeoutDisappear, wait: waitDisappear);
+                    project.SendToLog($"Завершение работы метода ClickDisappear", LogType.Info, false, LogColor.Green);
+                    break;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения ClickDisappear: " + ex.Message);
+
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Клик с выбором эмуляции и проверкой исчезновения элемента через его отрицательную ширину
+        /// </summary>
+        /// <param name="xpathClick"></param>
+        /// <param name="xpathCollection"></param>
+        /// <param name="wait"></param>
+        /// <param name="emulation"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public HtmlElement ClickGetByNegativeWidth(string xpathClick, string xpathCollection, int wait = 500, string emulation = "None")
+        {
+            project.SendToLog($"Начало работы метода ClickGetByNegativeWidth", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    Click(xpathClick, wait, emulation: emulation);
+                    HtmlElement element = GetElementByNegativeWidthInCollection(xpathCollection);
+                    project.SendToLog($"Завершение работы метода ClickGetByNegativeWidth", LogType.Info, false, LogColor.Green);
+                    return element;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения ClickGetByNegativeWidth: " + ex.Message);
+
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+            throw new Exception("Ошибка выполнения ClickGetByNegativeWidth");
+        }
+
+        /// <summary>
+        /// Клик с получением значения атрибута элемента
+        /// </summary>
+        /// <param name="xpathClick"></param>
+        /// <param name="xpathGet"></param>
+        /// <param name="nameGetAttr"></param>
+        /// <param name="emulation"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public string ClickGetValueAttribute(string xpathClick, string xpathGet, string nameGetAttr, string emulation = "Middle")
+        {
+            project.SendToLog($"Начало работы метода ClickCheckValueAttribute", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    Click(xpathClick, emulation: emulation);
+                    string valueAttr = GetValueAttribute(xpathGet, nameGetAttr);
+                    project.SendToLog($"Завершение работы метода ClickCheckValueAttribute", LogType.Info, false, LogColor.Green);
+                    break;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения ClickCheckValueAttribute: " + ex.Message);
+
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+            throw new Exception("Ошибка выполнения ClickCheckValueAttribute: ");
+        }
+
+        /// <summary>
+        /// ФулКлик по ещё не найденному элементу с ожиданием его исчезновения
+        /// </summary>
+        /// <param name="xpathFullClick"></param>
+        /// <param name="timeoutDisappear"></param>
+        /// <param name="waitDisappear"></param>
+        /// <exception cref="Exception"></exception>
+        public void FullClickDisappear(string xpathFullClick, int timeoutDisappear = 5000, int waitDisappear = 500)
+        {
+            project.SendToLog($"Начало работы метода FullClickDisappear", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    FullClick(xpathFullClick);
+
+                    DisappearElementWithError(xpathFullClick, timeoutDisappear, wait: waitDisappear);
+                    project.SendToLog($"Завершение работы метода FullClickDisappear", LogType.Info, false, LogColor.Green);
+                    break;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения FullClickDisappear: " + ex.Message);
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+        }
+
+        /// <summary>
+        /// ФулКлик по уже найденному элементу с ожиданием исчезновения элемента, по которому был сделан клик
+        /// </summary>
+        /// <param name="elementFullClick"></param>
+        /// <param name="xpathDisappear"></param>
+        /// <param name="timeoutDisappear"></param>
+        /// <param name="waitDisappear"></param>
+        /// <exception cref="Exception"></exception>
+        public void FullClickDisappear(HtmlElement elementFullClick, string xpathDisappear, int timeoutDisappear = 5000, int waitDisappear = 500)
+        {
+            project.SendToLog($"Начало работы метода FullClickDisappear", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    FullClick(elementFullClick);
+                    DisappearElementWithError(xpathDisappear, timeoutDisappear, wait: waitDisappear);
+
+                    project.SendToLog($"Завершение работы метода FullClickDisappear", LogType.Info, false, LogColor.Green);
+                    break;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения FullClickDisappear: " + ex.Message);
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+        }
+
+        /// <summary>
+        /// ФулКлик по ещё не найденному элементу и получение проверяемого элемента
+        /// </summary>
+        /// <param name="xpathFullClick"></param>
+        /// <param name="xpathGetElement"></param>
+        /// <param name="timeoutGetElement"></param>
+        /// <param name="wait"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public HtmlElement FullClickGet(string xpathFullClick, string xpathGetElement,
+           int timeoutGetElement = 5000, int wait = 500)
+        {
+            project.SendToLog($"Начало работы метода FullClickGet", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    FullClick(xpathFullClick);
+
+                    HtmlElement element = GetElement(xpathGetElement, timeoutGetElement, wait: wait);
+
+                    project.SendToLog($"Завершение работы метода FullClickGet", LogType.Info, false, LogColor.Green);
+                    return element;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения FullClickGet: " + ex.Message);
+
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+            throw new Exception($"FullClickGet error: попытка кликнуть по элементу '{xpathFullClick}' и получение элемента '{xpathGetElement}' не удались");
+        }
+
+
+        /// <summary>
+        /// Фул клик по уже найденному элементу и получение, проверяемого элемента
+        /// </summary>
+        /// <param name="elementFullClick"></param>
+        /// <param name="xpathCheckElement"></param>
+        /// <param name="timeoutCheckElement"></param>
+        /// <param name="wait"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public HtmlElement FullClickGet(HtmlElement elementFullClick, string xpathCheckElement, int timeoutCheckElement = 5000, int wait = 500)
+        {
+            project.SendToLog($"Начало работы метода FullClickGet", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    FullClick(elementFullClick);
+                    HtmlElement element = GetElement(xpathCheckElement, timeoutCheckElement, wait: wait);
+
+                    project.SendToLog($"Завершение работы метода FullClickGet", LogType.Info, false, LogColor.Green);
+                    return element;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("Ошибка выполнения FullClickGet: " + ex.Message);
+
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+            throw new Exception($"FullClickGet error: попытка кликнуть по элементу '{elementFullClick.InnerHtml}' и получение элемента '{xpathCheckElement}' не удались");
+        }
+
 
 
         #endregion
@@ -468,218 +907,6 @@ namespace ZennoHelperV2
 
         #endregion
 
-
-
-
-
-
-
-
-
-      
-
-        /// <summary>
-        /// Вставка value в элемент с проверкой
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="logGood"></param>
-        /// <param name="emulation"></param>
-        /// <param name="addend"></param>
-        /// <param name="showInPosterGood"></param>
-        public void SetValue(HtmlElement element, string text,
-            string logGood, string emulation = "None",
-            bool addend = false, bool showInPosterGood = false)
-        {
-            element.SetValue(text, emulation, append: addend);
-
-            CheckValueElement(element, text, logGood, showInPosterGood);
-        }
-        /// <summary>
-        /// Вставка value в ещё не найденный элемент с проверкой
-        /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="text"></param>
-        /// <param name="logGood"></param>
-        /// <param name="emulation"></param>
-        /// <param name="addend"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
-        public void SetValue(string xpath,string logGoodFind, string text, string logGoodCheck, 
-            int timeout = 250, int endCycle = 2, string emulation = "None", bool addend = false, 
-            int indexFind = 0, bool showInPosterGoodFind = false, bool showInPosterGoodCheck = false)
-
-        {
-            HtmlElement element = GetElement(xpath,logGoodFind,timeout,endCycle, indexFind, showInPosterGoodFind); 
-
-            element.SetValue(text, emulation, append: addend);
-
-            CheckValueElement(element, text, logGoodCheck, showInPosterGoodCheck);
-
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="xpath"></param>
-        /// <param name="logGood"></param>
-        /// <param name="referrer"></param>
-        /// <param name="timeout"></param>
-        /// <param name="endCycle"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
-        /// <returns></returns>
-        public HtmlElement NavigateWithoutTry(string url, string xpath,
-            string logGood, string referrer = null, int timeout = 10000, int endCycle = 10, int index = 0,
-            bool showInPosterGood = false)
-        {
-            instance.ActiveTab.Navigate(url, referrer);
-            HtmlElement element = GetElement(xpath, logGood, timeout, endCycle, index, showInPosterGood);
-            return element;
-        }
-        /// <summary>
-        /// Переход на сайт с проверкой загрузки через GetElement с 3 попытками
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="xpath"></param>
-        /// <param name="logGood"></param>
-        /// <param name="referrer"></param>
-        /// <param name="timeout"></param>
-        /// <param name="endCycle"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public HtmlElement NavigateWithTry(string url, string xpath,
-            string logGood, string referrer, int timeout = 1000, int endCycle = 10, int index = 0,
-            bool showInPosterGood = false)
-        {
-            HtmlElement element = null;
-            for (int i = 0; i < 3; i++)
-            {
-                instance.ActiveTab.Navigate(url, referrer);
-
-                try
-                {
-                    element = GetElement(xpath, logGood, timeout, endCycle, index, showInPosterGood);
-                    break;
-                }
-                catch
-                {
-                    continue;
-                }
-            }
-
-            if (element != null)
-            {
-                return element;
-            }
-            else
-            {
-                throw new Exception($"NavigateWithTry error: element '{xpath}' не найден при загрузки страницы за 3 попытки по {timeout * endCycle / 1000} секунд");
-            }
-        }
-
-        /// <summary>
-        /// Вставка value в ещё не найденный элемент без проверки
-        /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="text"></param>
-        /// <param name="logGood"></param>
-        /// <param name="emulation"></param>
-        /// <param name="addend"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
-        public void SetValueWithoutCheck(string xpath, string text, string logGood,
-           int timeout = 500, int endCycle = 10, int index = 0, string emulation = "None", bool addend = false, bool showInPosterGood = false)
-        {
-            HtmlElement element = GetElement(xpath, logGood, timeout, endCycle, index, showInPosterGood);
-
-            element.SetValue(text, emulation, append: addend);
-        }
-        /// <summary>
-        /// Вставка value в уже найденный элемент без проверки
-        /// </summary>
-        /// <param name="element"></param>
-        /// <param name="text"></param>
-        /// <param name="logGood"></param>
-        /// <param name="emulation"></param>
-        /// <param name="addend"></param>
-        /// <param name="showInPosterGood"></param>
-        public void SetValueWithoutCheck(HtmlElement element, string text,
-            string logGood, string emulation = "None",
-            bool addend = false, bool showInPosterGood = false)
-        {
-            element.SetValue(text, emulation, append: addend);
-            project.SendToLog(logGood, LogType.Info, showInPosterGood, LogColor.Green);
-        }
-
-        /// <summary>
-        /// ФулКлик мышью по уже найденному html-элементу с предварительной наводкой на него
-        /// </summary>
-        /// <param name="element">HtmlElement</param>
-        public void FullClick(HtmlElement element)
-        {
-            instance.ActiveTab.FullEmulationMouseMoveToHtmlElement(element);
-            instance.ActiveTab.FullEmulationMouseClick("left", "click");
-        }
-        /// <summary>
-        /// ФулКлик по элементу и получение его с помощью метода GetElement
-        /// </summary>
-        /// <param name="xpathFullClick"></param>
-        /// <param name="timeout"></param>
-        /// <param name="index"></param>
-        /// <param name="wait"></param>
-        /// <returns></returns>
-        public HtmlElement FullClick(string xpathFullClick, int timeout = 1000, int index = 0, int wait = 250)
-        {
-            HtmlElement element = GetElement(xpathFullClick, timeout, index, wait);
-            instance.ActiveTab.FullEmulationMouseMoveToHtmlElement(element);
-            instance.ActiveTab.FullEmulationMouseClick("left", "click");
-            project.SendToLog($"FullClick confirming: по элементу {xpathFullClick}", LogType.Info, false, LogColor.Gray);
-            return element;
-        }
-        /// <summary>
-        /// ФулКлик по уже найденному элементу
-        /// </summary>
-        /// <param name="element"></param>
-        public void FullClick(HtmlElement element)
-        {
-            instance.ActiveTab.FullEmulationMouseMoveToHtmlElement(element);
-            instance.ActiveTab.FullEmulationMouseClick("left", "click");
-            project.SendToLog($"FullClick confirming: по элементу {element.InnerHtml}", LogType.Info, false, LogColor.Gray);
-        }
-        /// <summary>
-        ///  Клик по уже найденному элементу с выбором эмуляции
-        /// </summary>
-        /// <param name="elementClick"></param>
-        /// <param name="timeout"></param>
-        /// <param name="index"></param>
-        /// <param name="wait"></param>
-        /// <param name="emulation"></param>
-        public void Click(HtmlElement elementClick, int timeout = 1000,
-             int index = 0, int wait = 250, string emulation = "None")
-        {
-            elementClick.RiseEvent("click", emulation);
-            project.SendToLog($"Click confirming: по элементу {elementClick.InnerHtml}", LogType.Info, false, LogColor.Gray);
-        }
-
-        /// <summary>
-        /// Клик по элементу с выбором эмуляции и получением его с помощью метода GetElement
-        /// </summary>
-        /// <param name="xpathClick"></param>
-        /// <param name="timeout"></param>
-        /// <param name="index"></param>
-        /// <param name="wait"></param>
-        /// <param name="emulation"></param>
-        /// <returns></returns>
-        public HtmlElement Click(string xpathClick, int timeout = 1000,
-             int index = 0, int wait = 250, string emulation = "None")
-        {
-            HtmlElement element = GetElement(xpathClick, timeout, index, wait);
-            element.RiseEvent("click", emulation);
-            project.SendToLog($"Click confirming: по элементу {xpathClick}", LogType.Info, false, LogColor.Gray);
-            return element;
-        }
 
         /// <summary>
         /// Установка value элемента через эмуляцию клавиатуры с помощью ФулКлик по полю ввода ещё не найденного элемента
