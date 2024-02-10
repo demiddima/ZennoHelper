@@ -890,6 +890,193 @@ namespace ZennoHelperV2
 
         #endregion
 
+        #region Ввод значения
+
+        /// <summary>
+        /// Установка value элемента через эмуляцию клавиатуры с помощью ФулКлик по полю ввода ещё не найденного элемента
+        /// </summary>
+        /// <param name="xpathFullClick"></param>
+        /// <param name="text"></param>
+        /// <param name="latency"></param>
+        /// <param name="timeoutFullClick"></param>
+        /// <param name="indexFullClick"></param>
+        /// <param name="wait"></param>
+        public void SetValueFull(string xpathSet, string text, int latency = 20,
+            int timeoutSet = 1000, int wait = 250)
+        {
+            project.SendToLog($"Начало работы метода SetValueFull", LogType.Info, false, LogColor.Pink);
+
+            HtmlElement element = GetElement(xpathSet, timeoutSet, wait: wait);
+            FullClick(element);
+            instance.SendText(text, latency);
+            CheckValueElement(element, xpathSet, text);
+
+            project.SendToLog($"Завершение работы метода SetValueFull", LogType.Info, false, LogColor.Green);
+        }
+        /// <summary>
+        /// Установка value элемента через эмуляцию клавиатуры с помощью ФулКлик по полю ввода уже найденного элемента
+        /// </summary>
+        /// <param name="elementSet"></param>
+        /// <param name="text"></param>
+        /// <param name="latency"></param>
+        /// <param name="timeoutSet"></param>
+        /// <param name="wait"></param>
+        public void SetValueFull(HtmlElement elementSet, string text, int latency = 20)
+        {
+            project.SendToLog($"Начало работы метода SetValueFull", LogType.Info, false, LogColor.Pink);
+
+            FullClick(elementSet);
+            instance.SendText(text, latency);
+            CheckValueElement(elementSet, elementSet.InnerHtml, text);
+
+            project.SendToLog($"Завершение работы метода SetValueFull", LogType.Info, false, LogColor.Green);
+        }
+        /// <summary>
+        /// Ввод текста с предварительным удалением значения в поле для не найденного элемента
+        /// </summary>
+        /// <param name="xpathFullClick"></param>
+        /// <param name="text"></param>
+        /// <param name="latency"></param>
+        /// <param name="timeoutFullClick"></param>
+        /// <param name="indexFullClick"></param>
+        /// <param name="wait"></param>
+        public void SetValueFullWithDelete(string xpathSet, string text, int latency = 20,
+            int timeoutSet = 1000, int wait = 250)
+        {
+            project.SendToLog($"Начало работы метода SetValueFullWithDelete", LogType.Info, false, LogColor.Pink);
+
+            HtmlElement element = GetElement(xpathSet, timeoutSet, wait: wait);
+            int lengthValue = element.GetValue().Length;
+
+            FullClick(element);
+            ButtonInCycle("{END}");
+            ButtonInCycle("{BACKSPACE}", lengthValue);
+
+
+            instance.SendText(text, latency);
+            ButtonInCycle("{ENTER}");
+
+            CheckValueElement(element, xpathSet, text);
+
+            project.SendToLog($"Завершение работы метода SetValueFullWithDelete", LogType.Info, false, LogColor.Green);
+        }
+
+        /// <summary>
+        /// Ввод текста с предварительным удалением значения в поле для уже найденного элемента
+        /// </summary>
+        /// <param name="elementSet"></param>
+        /// <param name="text"></param>
+        /// <param name="latency"></param>
+        public void SetValueFullWithDelete(HtmlElement elementSet, string text, int latency = 20)
+        {
+            project.SendToLog($"Начало работы метода SetValueFullWithDelete", LogType.Info, false, LogColor.Pink);
+
+            int lengthValue = elementSet.GetValue().Length;
+
+            FullClick(elementSet);
+            ButtonInCycle("{END}");
+            ButtonInCycle("{BACKSPACE}", lengthValue);
+
+
+            instance.SendText(text, latency);
+            ButtonInCycle("{ENTER}");
+
+            CheckValueElement(elementSet, elementSet.InnerHtml, text);
+
+            project.SendToLog($"Завершение работы метода SetValueFullWithDelete", LogType.Info, false, LogColor.Green);
+        }
+        /// <summary>
+        /// Нажатие по клавише указанное кол-во раз
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="endCycle"></param>
+        public void ButtonInCycle(string button, int endCycle = 1)
+        {
+            for (int i = 0; i < endCycle; i++)
+            {
+                instance.WaitFieldEmulationDelay();
+                instance.SendText($"{button}", 15);
+            }
+            project.SendToLog($"ButtonInCycle confirming: все кнопки были нажаты", LogType.Info, false, LogColor.Gray);
+        }
+
+        /// <summary>
+        /// Нажатие указанной кнопки с проверкой изменений через GetElement
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="xpathCheckElement"></param>
+        /// <param name="endCycleButton"></param>
+        /// <param name="timeoutCheckElement"></param>
+        /// <param name="indexCheckElement"></param>
+        /// <param name="wait"></param>
+        public HtmlElement ButtonInCycleWithkGet(string button, string xpathCheck,
+                int timeoutCheck = 3000, int wait = 500)
+        {
+            project.SendToLog($"Начало работы метода ButtonInCycleWithkGet", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    instance.WaitFieldEmulationDelay();
+                    instance.SendText($"{button}", 15);
+
+                    HtmlElement element = GetElement(xpathCheck, timeoutCheck, wait: wait);
+
+                    project.SendToLog($"Завершение работы метода ButtonInCycleWithkGet", LogType.Info, false, LogColor.Green);
+
+                    return element;
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("ButtonInCycleWithkGet error: " + ex.Message);
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+            throw new Exception("ButtonInCycleWithkGet error: элемент {xpathCheckElement} не получен");
+        }
+
+        /// <summary>
+        /// Нажатие указанной кнопки с проверкой изменений через DisappearElement
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="xpathCheckElement"></param>
+        /// <param name="endCycleButton"></param>
+        /// <param name="timeoutCheckElement"></param>
+        /// <param name="wait"></param>
+        public void ButtonInCycleWithDisappear(string button, string xpathCheck,
+             int timeoutCheck = 3000, int wait = 500)
+        {
+            project.SendToLog($"Начало работы метода ButtonInCycleWithDisappear", LogType.Info, false, LogColor.Pink);
+            for (int i = 0; i <= 1; i++)
+            {
+                try
+                {
+                    instance.WaitFieldEmulationDelay();
+                    instance.SendText($"{button}", 15);
+
+                    DisappearElement(xpathCheck, timeoutCheck, wait: wait);
+
+                    project.SendToLog($"Завершение работы метода ButtonInCycleWithDisappear", LogType.Info, false, LogColor.Green);
+                }
+                catch (Exception ex) when (i == 1)
+                {
+                    throw new Exception("ButtonInCycleWithDisappear error: " + ex.Message);
+                }
+                catch
+                {
+                    continue;
+                }
+
+            }
+        }
+
+
+
+        #endregion
+
 
         #region Разное
 
@@ -908,321 +1095,7 @@ namespace ZennoHelperV2
         #endregion
 
 
-        /// <summary>
-        /// Установка value элемента через эмуляцию клавиатуры с помощью ФулКлик по полю ввода ещё не найденного элемента
-        /// </summary>
-        /// <param name="xpathFullClick"></param>
-        /// <param name="text"></param>
-        /// <param name="latency"></param>
-        /// <param name="logGoodFullClick"></param>
-        /// <param name="timeoutFullClick"></param>
-        /// <param name="endCycleFullClick"></param>
-        /// <param name="indexFullClick"></param>
-        /// <param name="logGoodCheck"></param>
-        /// <param name="showInPosterGoodFullClick"></param>
-        /// <param name="showInPosterGoodCheck"></param>
-        public void SetValueFull(string xpathFullClick, string text, int latency = 20,
-            string logGoodFullClick = "Элемент для FullClick найден", int timeoutFullClick = 10, int endCycleFullClick = 2, int indexFullClick = 0,
-            string logGoodCheck = "Value элемента изменено!", bool showInPosterGoodFullClick = false, bool showInPosterGoodCheck = false)
-        {
-            HtmlElement element = GetElement(xpathFullClick, logGoodFullClick, timeoutFullClick, endCycleFullClick, indexFullClick, showInPosterGoodFullClick);
-            FullClick(element);
-            instance.SendText(text, latency);
-
-            CheckValueElement(element, text, logGoodCheck, showInPosterGoodCheck);
-        }
-        /// <summary>
-        /// Установка value элемента через эмуляцию клавиатуры с помощью ФулКлик по полю ввода уже найденного элемента
-        /// <param name="element"></param>
-        /// <param name="text">Вводимое значение</param>
-        /// <param name="logGood">Сообщение в лог, если выполнено</param>
-        /// <param name="latency">Задержка между вводимыми символами</param>
-        /// <param name="showInPosterGood">Разрешить или запретить вывод удачного выполнения в ЗенноПостер</param>
-        /// <exception cref="Exception"></exception>
-        public void SetValueFull(HtmlElement element, string text, int latency = 20,
-            string logGoodCheck = "Value элемента изменено!", bool showInPosterGoodCheck = false)
-        {
-            FullClick(element);
-            instance.SendText(text, latency);
-
-            CheckValueElement(element, text, logGoodCheck, showInPosterGoodCheck);
-        }
-        /// <summary>
-        /// Установка значения для атрибута в ещё не найденном элементе
-        /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="nameAttr"></param>
-        /// <param name="value"></param>
-        /// <param name="logGood"></param>
-        /// <param name="timeout"></param>
-        /// <param name="endCycle"></param>
-        /// <param name="index"></param>
-        /// <param name="showInPosterGood"></param>
-        public void SetValueAttribute(string xpath, string nameAttr, string value,
-            string logGood = "Элемент для SetAttribute найден", int timeout = 10, int endCycle = 2, int index = 0,
-            bool showInPosterGood = false)
-        {
-            var element = GetElement(xpath, logGood, timeout,endCycle,index, showInPosterGood );
-            element.SetAttribute(nameAttr, value);
-        }
-        /// <summary>
-        /// Установка значения для атрибута в уже найденом элементе
-        /// </summary>
-        /// <param name="element"></param>
-        /// <param name="nameAttr"></param>
-        /// <param name="value"></param>
-        public void SetValueAttribute(HtmlElement element, string nameAttr, string value)
-        {
-            element.SetAttribute(nameAttr, value);
-        }
-
-        /// <summary>
-        /// ФулКлик через xpath с проверкой и попытками 
-        /// </summary>
-        /// <param name="fullClickXpath"></param>
-        /// <param name="xpathCheckElement"></param>
-        /// <param name="logGoodClickXpath"></param>
-        /// <param name="indexFullClickElement"></param>
-        /// <param name="logGoodCheck"></param>
-        /// <param name="timeoutCheckElement"></param>
-        /// <param name="endCycleCheckElement"></param>
-        /// <param name="indexCheckElement"></param>
-        /// <param name="showInPosterGoodCheckElement"></param>
-        /// <exception cref="Exception"></exception>
-        public void FullClickWithCheck(string fullClickXpath, string xpathCheckElement,
-            string logGoodClickXpath = "Элемент для FullClick найден", int indexFullClickElement = 0,
-            string logGoodCheck = "FullClickWithCheck по элементу удался!", int timeoutCheckElement = 1000,
-            int endCycleCheckElement = 10, int indexCheckElement = 0, bool showInPosterGoodCheckElement = false)
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                try
-                {
-                    FullClick(fullClickXpath, logGoodClickXpath, index: indexFullClickElement);
-
-                    GetElement(xpathCheckElement, logGoodCheck, timeoutCheckElement, endCycleCheckElement, indexCheckElement, showInPosterGoodCheckElement);
-
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    if (i == 2)
-                    {
-                        throw new Exception("Ошибка выполнения FullClickWithCheck: " + ex.Message);
-                    }
-                    continue;
-                }
-            }
-        }
-        /// <summary>
-        /// ФулКлик по уже найденному элементу с проверкой и попытками 
-        /// </summary>
-        /// <param name="fullClickElement"></param>
-        /// <param name="xpathCheckElement"></param>
-        /// <param name="timeoutCheckElement"></param>
-        /// <param name="logGoodCheck"></param>
-        /// <param name="endCycleCheckElement"></param>
-        /// <param name="indexCheckElement"></param>
-        /// <param name="showInPosterGoodCheckElement"></param>
-        /// <exception cref="Exception"></exception>
-        public void FullClickWithCheck(HtmlElement fullClickElement, string xpathCheckElement, int timeoutCheckElement,
-           string logGoodCheck = "FullClickWithCheck по элементу удался!", int endCycleCheckElement = 10,
-           int indexCheckElement = 0, bool showInPosterGoodCheckElement = false)
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                try
-                {
-                    FullClick(fullClickElement);
-
-                    GetElement(xpathCheckElement, logGoodCheck, timeoutCheckElement, endCycleCheckElement, indexCheckElement, showInPosterGoodCheckElement);
-
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    if (i == 2)
-                    {
-                        throw new Exception("Ошибка выполнения FullClickWithCheck: " + ex.Message);
-                    }
-                    continue;
-                }
-            }
-        }
-        /// <summary>
-        /// Клик по элементу по его xpath с выбором эмуляции, проверкой и попытками 
-        /// </summary>
-        /// <param name="xpathClick"></param>
-        /// <param name="xpathCheckElement"></param>
-        /// <param name="logGoodClick"></param>
-        /// <param name="indexClick"></param>
-        /// <param name="emulation"></param>
-        /// <param name="logGoodCheck"></param>
-        /// <param name="timeoutCheckElement"></param>
-        /// <param name="endCycleCheckElement"></param>
-        /// <param name="indexCheckElement"></param>
-        /// <param name="showInPosterGoodCheckElement"></param>
-        /// <exception cref="Exception"></exception>
-        public void ClickWithCheck(string xpathClick, string xpathCheckElement,
-            string logGoodClick = "Click по элементу удался!", int indexClick = 0, string emulation = "None",
-            string logGoodCheck = "ClickWithCheck по элементу удался!", int timeoutCheckElement = 0, int endCycleCheckElement = 10, int indexCheckElement = 0,
-           bool showInPosterGoodCheckElement = false)
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                try
-                {
-                    Click(xpathClick, logGoodClick, index: indexClick, emulation: emulation);
-
-                    GetElement(xpathCheckElement, logGoodCheck, timeoutCheckElement, endCycleCheckElement, indexCheckElement, showInPosterGoodCheckElement);
-
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    if (i == 2)
-                    {
-                        throw new Exception("Ошибка выполнения ClickWithCheck: " + ex.Message);
-                    }
-                    continue;
-                }
-            }
-        }
-        /// <summary>
-        /// Клик по уже найденному элементу с выбором эмуляции, проверкой и попытками 
-        /// </summary>
-        /// <param name="clickElement"></param>
-        /// <param name="xpathCheckElement"></param>
-        /// <param name="emulation"></param>
-        /// <param name="logGoodCheck"></param>
-        /// <param name="timeoutCheckElement"></param>
-        /// <param name="endCycleCheckElement"></param>
-        /// <param name="indexCheckElement"></param>
-        /// <param name="showInPosterGoodCheckElement"></param>
-        /// <exception cref="Exception"></exception>
-        public void ClickWithCheck(HtmlElement clickElement, string xpathCheckElement, string emulation = "None",
-           string logGoodCheck = "ClickWithCheck по элементу удался!", int timeoutCheckElement = 1000, int endCycleCheckElement = 10,
-           int indexCheckElement = 0, bool showInPosterGoodCheckElement = false)
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                try
-                {
-                    Click(clickElement, emulation);
-
-                    GetElement(xpathCheckElement, logGoodCheck, timeoutCheckElement, endCycleCheckElement, indexCheckElement, showInPosterGoodCheckElement);
-
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    if (i == 2)
-                    {
-                        throw new Exception("Ошибка выполнения ClickWithCheck: " + ex.Message);
-                    }
-                    continue;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Нажатие на кнопку клавиатуры в цикле без проверки
-        /// </summary>
-        /// <param name="button"></param>
-        /// <param name="endCycle"></param>
-        public void ButtonInCycle(string button,int endCycle = 1)
-        {
-            for (int i = 0; i < endCycle; i++)
-            {
-                instance.WaitFieldEmulationDelay();
-                instance.SendText($"{button}", 15);
-            }
-            
-        }
         
-        /// <summary>
-        /// Нажатие на кнопку клавиатуры в циклве и проверкой
-        /// </summary>
-        /// <param name="button"></param>
-        /// <param name="xpathCheckElement"></param>
-        /// <param name="endCycleButton"></param>
-        /// <param name="logGoodCheck"></param>
-        /// <param name="timeoutCheckElement"></param>
-        /// <param name="endCycleCheckElement"></param>
-        /// <param name="indexCheckElement"></param>
-        /// <param name="showInPosterGoodCheckElement"></param>
-        /// <exception cref="Exception"></exception>
-        public void ButtonInCycleWithCheck(string button, string xpathCheckElement, int endCycleButton = 1,
-            string logGoodCheck = "ButtonInCycleWithCheck нажатие на клавишу дало нужный результат", int timeoutCheckElement = 300, 
-            int endCycleCheckElement = 10, int indexCheckElement = 0, bool showInPosterGoodCheckElement = false)
-        {
-            for (int i = 0; i < endCycleButton; i++)
-            {
-                try
-                {
-                    instance.WaitFieldEmulationDelay();
-                    instance.SendText($"{button}", 15);
-
-                    GetElement(xpathCheckElement, logGoodCheck, timeoutCheckElement, endCycleCheckElement, indexCheckElement, showInPosterGoodCheckElement);
-                }
-                catch (Exception ex)
-                {
-                    if (i == 2)
-                    {
-                        throw new Exception("Ошибка выполнения ButtonInCycleWithCheck: " + ex.Message);
-                    }
-                    continue;
-                }                
-            }
-        }
-
-        /// <summary>
-        /// Загрузка файла на сервер с проверкой
-        /// </summary>
-        /// <param name="pathFile"></param>
-        /// <param name="xpathFullClick"></param>
-        /// <param name="xpathCheckDownload"></param>
-        /// <param name="logGoodFullClick"></param>
-        /// <param name="timeoutFullClick"></param>
-        /// <param name="endCycleFullClick"></param>
-        /// <param name="indexFullClick"></param>
-        /// <param name="logGoodCheckDownload"></param>
-        /// <param name="timeoutCheckDownload"></param>
-        /// <param name="endCycleCheckDownload"></param>
-        /// <param name="indexCheckDownload"></param>
-        /// <param name="showInPosterGoodFullClick"></param>
-        /// <param name="showInPosterGoodCheckDownload"></param>
-        public virtual void DownloadFile(string pathFile, string xpathFullClick, string xpathCheckDownload,
-            string logGoodFullClick = "Элемент загрузки файла для FullClick найден!", int timeoutFullClick = 100, int endCycleFullClick = 2, int indexFullClick = 0,
-            string logGoodCheckDownload = "Файл успешно загружен!", int timeoutCheckDownload = 500, int endCycleCheckDownload = 10, int indexCheckDownload = 0,
-            bool showInPosterGoodFullClick = false, bool showInPosterGoodCheckDownload = false)
-        {
-            instance.SetFileUploadPolicy("ok", "");
-            instance.SetFilesForUpload(pathFile);
-
-            FullClick(xpathFullClick,logGoodFullClick, timeoutFullClick, endCycleFullClick, indexFullClick, showInPosterGoodFullClick);
-
-            GetElement(xpathCheckDownload, logGoodCheckDownload, timeoutCheckDownload, endCycleCheckDownload, indexCheckDownload, showInPosterGoodCheckDownload);
-        }
-
-        /// <summary>
-        /// Парсинг атрибутов по xpath с возможностью выбрать содержание
-        /// </summary>
-        /// <param name="xpath"></param>
-        /// <param name="attr"></param>
-        /// <param name="contains"></param>
-        /// <returns></returns>
-        public List<string> Parsing(string xpath, string attr, string contains = "", ZennoLab.InterfacesLibrary.Enums.Parser.FilterType filterType = ZennoLab.InterfacesLibrary.Enums.Parser.FilterType.None)
-        {
-            // Получаем атрибут attr всех элементов, соответствующих пути xpath
-            var attributes = ZennoPoster.Parser.ParseByXpath(instance.ActiveTab, ZennoLab.InterfacesLibrary.Enums.Parser.SourceType.Dom, xpath, attr, true).ToList();
-            // Фильтруем элементы
-            attributes.Filter(filterType, contains);
-            // Выбираем элементы из диапазона "all"
-            attributes.Range("all");
-
-            return attributes;
-        }
 
   
 
